@@ -73,6 +73,22 @@ const HomePage: NextPageWithLayout<HomePageProps> = ({
     siteLogo
   );
 
+
+
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyD9AjeKw-XSIZVztg2wdaLusbTwYFk4wO8",
+  authDomain: "otlubplus-a54f2.firebaseapp.com",
+  projectId: "otlubplus-a54f2",
+  storageBucket: "otlubplus-a54f2.firebasestorage.app",
+  messagingSenderId: "705855812300",
+  appId: "1:705855812300:web:bc932b344c1cdc16080869",
+  measurementId: "G-PDRDC5WMND"
+};
+
+
+
+
   const websiteSchema = generateWebsiteSchema(siteName);
 
   return (

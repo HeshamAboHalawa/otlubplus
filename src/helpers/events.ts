@@ -69,8 +69,8 @@ export const onAppLoad = () => {
 
   const userLocation = getCookie("userLocation") as UserLocation;
   if (!userLocation) {
-    // document.getElementById("location-modal-btn")?.click();
-    // addToast({ color: "default", title: "Please Select Location First !" });
+    document.getElementById("location-modal-btn")?.click();
+    addToast({ color: "default", title: "Please Select Location First !" });
   }
 };
 

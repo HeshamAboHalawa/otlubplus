@@ -1,3 +1,4 @@
+
 import { FC, useEffect, useRef } from "react";
 import type { GoogleMapProps } from "./types/GoogleMap.types";
 import { useTheme } from "next-themes";
@@ -146,6 +147,18 @@ const GoogleMap: FC<GoogleMapProps> = ({
         }
       }, 100);
     }
+
+
+    if (typeof window.google === "undefined" || !window.google.maps) {
+      const interval = setInterval(() => {
+        if (window.google?.maps) {
+          clearInterval(interval);
+          initMap();
+        }
+      }, 100);
+      return () => clearInterval(interval); // cleanup on unmount
+    }
+
 
     initMap();
   }, [latLng, onLocationUpdate, theme]);

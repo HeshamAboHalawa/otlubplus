@@ -12,6 +12,8 @@ import { trackPageView } from "@/lib/analytics";
 import "@/styles/index.css";
 import { CircleX } from "lucide-react";
 import i18n from "../../i18n";
+import Script from "next/script";
+
 
 const ToastProvider = dynamic(
   () => import("@heroui/react").then((mod) => mod.ToastProvider),
@@ -72,6 +74,10 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
 
   return (
     <HeroUIProvider navigate={router.push}>
+      <Script
+  src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&loading=async`}
+  strategy="beforeInteractive" // or "afterInteractive"
+/>
       <NextThemesProvider
         defaultTheme="system"
         attribute="class"

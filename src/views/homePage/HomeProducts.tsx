@@ -41,9 +41,6 @@ const fetcher = async () => {
     include_child_categories: 0,
   });
 
-
-  console.log(response);
-
   if (!response.success || !response.data) {
     console.error(response.message || "Failed to fetch products");
   }

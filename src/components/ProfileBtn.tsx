@@ -21,6 +21,7 @@ import {
   Receipt,
   LogOut,
   Settings,
+  Bell,
 } from "lucide-react";
 
 const ProfileBtn: FC = () => {
@@ -113,6 +114,15 @@ const ProfileBtn: FC = () => {
             classNames={{ title: "text-xs" }}
           >
             {t("profileBtn.transactions")}
+          </DropdownItem>
+
+          <DropdownItem
+            key="/my-account/notifications"
+            startContent={<Bell size={16} />}
+            textValue={t("profileBtn.notifications")}
+            classNames={{ title: "text-xs" }}
+          >
+            {t("profileBtn.notifications")}
           </DropdownItem>
 
           <DropdownItem

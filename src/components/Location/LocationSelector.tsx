@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Button,
   Modal,
@@ -21,6 +21,10 @@ import { onLocationChange } from "@/helpers/events";
 import { useTranslation } from "react-i18next";
 import { mutate } from "swr";
 import { staticLat, staticLng } from "@/config/constants";
+import { getStoresByMap } from "@/routes/api";
+import { Store } from "@/types/ApiResponse";
+import { debounce } from "lodash";
+import { useMemo } from "react";
 
 // Define the ref interface (should match LocationAutoComplete)
 interface LocationAutoCompleteRef {
@@ -55,6 +59,7 @@ const LocationSelector = () => {
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [deliveryCheckLoading, setDeliveryCheckLoading] = useState(false);
+  const [stores, setStores] = useState<Store[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Create a ref for LocationAutoComplete
@@ -86,20 +91,21 @@ const LocationSelector = () => {
     initializeLocation();
   }, []);
 
-  // Reset temp state when modal opens
+  // Initialize temp state when modal opens.
+  // Do not include temp state in deps, otherwise user-picked temp values get reset.
   useEffect(() => {
-    if (isOpen) {
-      setTempSelectedLatLng(selectedLatLng);
-      setTempSelectedLocation(selectedLocation);
+    if (!isOpen) return;
 
-      // Update autocomplete input when modal opens
-      if (selectedLocation && autocompleteRef.current) {
-        setTimeout(() => {
-          if (autocompleteRef.current) {
-            autocompleteRef.current.setInputValue(selectedLocation.placeName);
-          }
-        }, 100);
-      }
+    setTempSelectedLatLng(selectedLatLng);
+    setTempSelectedLocation(selectedLocation);
+
+    // Update autocomplete input when modal opens
+    if (selectedLocation && autocompleteRef.current) {
+      setTimeout(() => {
+        if (autocompleteRef.current) {
+          autocompleteRef.current.setInputValue(selectedLocation.placeName);
+        }
+      }, 100);
     }
   }, [isOpen, selectedLatLng, selectedLocation]);
 
@@ -163,68 +169,71 @@ const LocationSelector = () => {
     });
   };
 
-  const handleMapLocationUpdate = async (
-    latLng: {
-      lat: number;
-      lng: number;
-    },
-    renderToast: boolean = true
-  ) => {
-    // Wait for Google Maps API to load
-    const isLoaded = await waitForGoogleMaps();
-    if (!isLoaded) {
-      console.warn("Google Maps API failed to load");
-      return;
-    }
-
-    setDeliveryCheckLoading(true);
-
-    try {
-      const geocoder = new window.google.maps.Geocoder();
-      const result = await geocoder.geocode({ location: latLng });
-
-      if (result?.results[0]) {
-        const newLocation = {
-          placeName: result.results[0].formatted_address,
-          latLng: latLng,
-          placeDescription: "",
-        };
-
-        // First update the modal location and autocomplete input
-        setTempSelectedLatLng(latLng);
-        setTempSelectedLocation(newLocation);
-
-        if (autocompleteRef.current) {
-          autocompleteRef.current.setInputValue(newLocation.placeName);
-        }
-
-        // Then check delivery
-        const res = await handleCheckZone(latLng.lat, latLng.lng);
-
-        if (res) {
-          if (renderToast) {
-            addToast({ title: "Delivery Available", color: "success" });
-          }
-        } else {
-          addToast({
-            title: "Delivery Not Available",
-            color: "danger",
-            description:
-              "You can continue browsing or select a different location",
-          });
-        }
+  const handleMapLocationUpdate = useCallback(
+    async (
+      latLng: {
+        lat: number;
+        lng: number;
+      },
+      renderToast: boolean = true,
+    ) => {
+      // Wait for Google Maps API to load
+      const isLoaded = await waitForGoogleMaps();
+      if (!isLoaded) {
+        console.warn("Google Maps API failed to load");
+        return;
       }
-    } catch (error) {
-      console.error("Error geocoding map location:", error);
-      addToast({
-        title: "Error processing location",
-        color: "danger",
-        description: "Please try again",
-      });
-    } finally {
-      setDeliveryCheckLoading(false);
-    }
-  };
+
+      setDeliveryCheckLoading(true);
+
+      try {
+        const geocoder = new window.google.maps.Geocoder();
+        const result = await geocoder.geocode({ location: latLng });
+
+        if (result?.results[0]) {
+          const newLocation = {
+            placeName: result.results[0].formatted_address,
+            latLng: latLng,
+            placeDescription: "",
+          };
+
+          // First update the modal location and autocomplete input
+          setTempSelectedLatLng(latLng);
+          setTempSelectedLocation(newLocation);
+
+          if (autocompleteRef.current) {
+            autocompleteRef.current.setInputValue(newLocation.placeName);
+          }
+
+          // Then check delivery
+          const res = await handleCheckZone(latLng.lat, latLng.lng);
+
+          if (res) {
+            if (renderToast) {
+              addToast({ title: "Delivery Available", color: "success" });
+            }
+          } else {
+            addToast({
+              title: "Delivery Not Available",
+              color: "danger",
+              description:
+                "You can continue browsing or select a different location",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error geocoding map location:", error);
+        addToast({
+          title: "Error processing location",
+          color: "danger",
+          description: "Please try again",
+        });
+      } finally {
+        setDeliveryCheckLoading(false);
+      }
+    },
+    [],
+  );
 
   const handleConfirmLocation = async () => {
     if (tempSelectedLocation && tempSelectedLatLng) {
@@ -300,6 +309,48 @@ const LocationSelector = () => {
       }
     }
   };
+
+  // Debounce API call to prevent laggy behavior during zoom/pan
+  const debouncedFetchStores = useMemo(
+    () =>
+      debounce(
+        async (bounds: {
+          ne: { lat: number; lng: number };
+          sw: { lat: number; lng: number };
+        }) => {
+          try {
+            const res = await getStoresByMap({
+              ne_lat: bounds.ne.lat,
+              ne_lng: bounds.ne.lng,
+              sw_lat: bounds.sw.lat,
+              sw_lng: bounds.sw.lng,
+            });
+
+            if (res.success && res.data) {
+              setStores(res.data.stores);
+            }
+          } catch (error) {
+            console.error("Error fetching stores by map:", error);
+          }
+        },
+        500, // 500ms delay
+      ),
+    [],
+  );
+
+  const handleBoundsChange = useCallback(
+    (bounds: {
+      ne: { lat: number; lng: number };
+      sw: { lat: number; lng: number };
+    }) => {
+      debouncedFetchStores(bounds);
+    },
+    [debouncedFetchStores],
+  );
+
+  const handleZoomChange = useCallback(() => {
+    // Handle zoom change if needed
+  }, []);
 
   const handleCloseModal = () => {
     if (selectedLocation) {
@@ -383,6 +434,9 @@ const LocationSelector = () => {
             <GoogleMap
               latLng={tempSelectedLatLng}
               onLocationUpdate={handleMapLocationUpdate}
+              onBoundsChange={handleBoundsChange}
+              onZoomChange={handleZoomChange}
+              stores={stores}
             />
           </ModalBody>
           <ModalFooter className="flex items-center flex-col sm:flex-row justify-between">

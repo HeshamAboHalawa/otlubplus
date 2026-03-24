@@ -173,18 +173,19 @@ const GlobalSearchBar: React.FC = () => {
   const handleSearchSubmit = useCallback(
     (query: string = searchQuery) => {
       const trimmedQuery = query.trim();
-      if (trimmedQuery) {
+      if (trimmedQuery.length >= 2) {
         addSearch(trimmedQuery);
         if (trimmedQuery !== debouncedSearchQuery) {
           mutate(searchFetcher(`search:${trimmedQuery}`), false);
         }
+        onClose();
         router.push({
           pathname: "/products/search",
           query: { q: trimmedQuery },
         });
       }
     },
-    [searchQuery, addSearch, debouncedSearchQuery, mutate, router]
+    [searchQuery, addSearch, debouncedSearchQuery, mutate, router, onClose],
   );
 
   const handleProductClick = useCallback(

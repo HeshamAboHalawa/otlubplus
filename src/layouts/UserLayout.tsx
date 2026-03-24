@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Bookmark,
   Banknote,
+  Bell,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
@@ -44,7 +45,7 @@ const IconWrapper = ({
   <div
     className={cn(
       className,
-      "flex items-center rounded-full justify-center w-7 h-7 p-1 ml-0"
+      "flex items-center rounded-full justify-center w-7 h-7 p-1 ml-0",
     )}
   >
     {children}
@@ -69,7 +70,7 @@ const HeroUserClient = dynamic(
         name={""}
       />
     ),
-  }
+  },
 );
 
 const UserLayout: FC<UserLayoutProps> = ({ children, activeTab }) => {
@@ -125,6 +126,14 @@ const UserLayout: FC<UserLayoutProps> = ({ children, activeTab }) => {
       key: "transactions",
       count: 12,
       isActive: "transactions" === activeTab,
+    },
+    {
+      label: "Notifications",
+      icon: Bell,
+      href: "/my-account/notifications",
+      key: "notifications",
+      count: 0,
+      isActive: "notifications" === activeTab,
     },
   ];
 

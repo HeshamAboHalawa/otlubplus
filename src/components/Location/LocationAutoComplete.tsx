@@ -75,7 +75,6 @@ const LocationAutoComplete = forwardRef<
         ? `${initialLocation.placeName}, ${initialLocation.placeDescription}`
         : initialLocation.placeName;
 
-        
       setInputValue(displayText);
       setSelected({
         mainText: { text: initialLocation.placeName },
@@ -173,24 +172,6 @@ const LocationAutoComplete = forwardRef<
     };
   }, [inputValue, isInitialized, initialLocation, allowedCountries]);
 
-
-   // Add this helper above the component (or in a shared utils file)
-const waitForGoogleMaps = (): Promise<void> => {
-  return new Promise((resolve) => {
-    if (typeof window.google !== "undefined" && window.google.maps) {
-      resolve();
-      return;
-    }
-    const interval = setInterval(() => {
-      if (typeof window.google !== "undefined" && window.google.maps) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 100);
-  });
-};
-
-
   const handleSelectionChange = async (key: Key | null): Promise<void> => {
     if (key !== null) {
       const selectedItem = predictions.find((item) => item.key === key);
@@ -235,19 +216,8 @@ const waitForGoogleMaps = (): Promise<void> => {
     }
   };
 
-
- 
-
   const handleGetCurrentLocation = () => {
     if (navigator.geolocation) {
-
-
-       // ✅ Guard against Maps SDK not being ready
-  if (typeof window.google === "undefined" || !window.google.maps) {
-    console.error("Google Maps SDK is not loaded yet.");
-    return;
-  }
-
       setGettingCurrentLocation(true);
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -256,21 +226,9 @@ const waitForGoogleMaps = (): Promise<void> => {
             lng: position.coords.longitude,
           };
           try {
-            // const { Geocoder } = (await google.maps.importLibrary(
-            //   "geocoding"
-            // )) as google.maps.GeocodingLibrary;
-
-           
-           
-
-
-            const { Geocoder } = (await window.google.maps.importLibrary(
+            const { Geocoder } = (await google.maps.importLibrary(
               "geocoding"
             )) as google.maps.GeocodingLibrary;
-
-            await waitForGoogleMaps(); // ✅ Wait for SDK before proceeding
-
-            
             const geocoder = new Geocoder();
             const result = await geocoder.geocode({ location: latLng });
 
@@ -323,7 +281,7 @@ const waitForGoogleMaps = (): Promise<void> => {
         items={predictions}
         placeholder={t("enter-city-or-address")}
         variant="faded"
-        allowsEmptyCollection={inputValue.length == 0}
+        // allowsEmptyCollection={inputValue.length == 0}
         allowsCustomValue={true}
         classNames={{
           base: "group-data-[focus-visible=true]:ring-0 group-data-[focus-visible=true]:outline-none",

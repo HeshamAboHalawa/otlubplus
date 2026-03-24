@@ -10,34 +10,23 @@ import {
 import { ChevronLeft } from "lucide-react";
 import { FC } from "react";
 import { SelectedFilters } from ".";
-import { getBrands } from "@/routes/api";
-import { useInfiniteData } from "@/hooks/useInfiniteData";
 import { Brand as BrandType } from "@/types/ApiResponse";
 import { useTranslation } from "react-i18next";
 
 interface BrandSectionProps {
+  brands: BrandType[];
   selectedFilters: SelectedFilters;
   setSelectedFilters: React.Dispatch<React.SetStateAction<SelectedFilters>>;
+  isLoading?: boolean;
 }
 
 const BrandSection: FC<BrandSectionProps> = ({
+  brands,
   selectedFilters,
   setSelectedFilters,
+  isLoading = false,
 }) => {
   const { t } = useTranslation();
-
-  const {
-    data: brands,
-    isLoading,
-    hasMore,
-    loadMore,
-  } = useInfiniteData<BrandType>({
-    fetcher: getBrands,
-    perPage: 20,
-    dataKey: "brands",
-    forceFetchOnMount: true,
-    passLocation: true,
-  });
 
   return (
     <div className="w-full overflow-x-hidden">
@@ -76,16 +65,6 @@ const BrandSection: FC<BrandSectionProps> = ({
           <ScrollShadow
             hideScrollBar
             className="w-full text-xs rounded-md max-h-[25vh]"
-            onScroll={(e: React.UIEvent<HTMLDivElement>) => {
-              const target = e.currentTarget;
-              if (
-                target.scrollTop + target.clientHeight >=
-                  target.scrollHeight - 20 &&
-                hasMore
-              ) {
-                loadMore();
-              }
-            }}
           >
             {isLoading ? (
               <div className="space-y-2 p-2">
@@ -98,7 +77,7 @@ const BrandSection: FC<BrandSectionProps> = ({
                   </div>
                 ))}
               </div>
-            ) : brands.length > 0 ? (
+            ) : brands && brands.length > 0 ? (
               <Listbox
                 aria-label={t("brand.selectionAria")}
                 selectedKeys={
@@ -119,7 +98,12 @@ const BrandSection: FC<BrandSectionProps> = ({
                 {brands.map((brand) => (
                   <ListboxItem
                     key={brand.slug}
-                    classNames={{ title: "text-xs", base: "px-1" }}
+                    textValue={brand.title}
+                    isDisabled={brand.enabled === false}
+                    classNames={{
+                      title: "text-xs",
+                      base: `px-1 ${brand.enabled === false ? "opacity-50" : ""}`,
+                    }}
                     startContent={
                       <Image
                         loading="lazy"
@@ -137,11 +121,6 @@ const BrandSection: FC<BrandSectionProps> = ({
               </Listbox>
             ) : (
               <div className="text-center py-2">{t("brand.noBrands")}</div>
-            )}
-            {hasMore && (
-              <div className="text-center py-1 text-xs text-gray-500">
-                {t("brand.scrollMore")}
-              </div>
             )}
           </ScrollShadow>
         </AccordionItem>

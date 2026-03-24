@@ -34,10 +34,17 @@ import {
 import { useTranslation } from "react-i18next";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
+import { getSidebarFilters } from "@/routes/api";
+import { SidebarFilters } from "@/types/ApiResponse";
+import { getCookie } from "@/lib/cookies";
+import { UserLocation } from "@/components/Location/types/LocationAutoComplete.types";
+import AttributeSection from "./AttributeSection";
+
 export interface SelectedFilters {
   categories: string[];
   brands: string[];
   colors: string[];
+  attribute_values: string[];
   sort: SortOption;
   search?: string;
 }
@@ -50,6 +57,10 @@ interface ProductFilterProps {
   onApplyFilters: (filters: SelectedFilters) => void;
   totalProducts?: number;
   searchComponent?: boolean;
+  sidebarType?: string;
+  sidebarValue?: string;
+  hideBrandFilter?: boolean;
+  hideCategoryFilter?: boolean;
 }
 
 const ProductFilter: FC<ProductFilterProps> = ({
@@ -58,11 +69,20 @@ const ProductFilter: FC<ProductFilterProps> = ({
   onApplyFilters,
   totalProducts = 0,
   searchComponent = false,
+  sidebarType,
+  sidebarValue,
+  hideBrandFilter = false,
+  hideCategoryFilter = false,
 }) => {
   const [searchInput, setSearchInput] = useState(selectedFilters?.search || "");
+  const [pendingFilters, setPendingFilters] =
+    useState<SelectedFilters>(selectedFilters);
   const debouncedSearch = useDebouncedValue(searchInput, 500);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { t } = useTranslation();
+
+  const [sidebarData, setSidebarData] = useState<SidebarFilters | null>(null);
+  const [isSidebarLoading, setIsSidebarLoading] = useState(false);
 
   const selectedFiltersRef = useRef(selectedFilters);
   const onApplyFiltersRef = useRef(onApplyFilters);
@@ -74,6 +94,110 @@ const ProductFilter: FC<ProductFilterProps> = ({
     selectedFiltersRef.current = selectedFilters;
     onApplyFiltersRef.current = onApplyFilters;
   }, [selectedFilters, onApplyFilters]);
+
+  // Sync pending filters when selectedFilters changes externally (e.g., route change, browser back)
+  useEffect(() => {
+    setPendingFilters(selectedFilters);
+  }, [selectedFilters]);
+
+  // Ref to track the last fetched key for sidebar filters
+  const lastFetchedRef = useRef("");
+
+  const fetchSidebarFilters = useCallback(
+    async (filters: SelectedFilters) => {
+      // Only fetch if selection-based filters actually changed
+      const currentKey = `${filters.categories.join(",")}-${filters.brands.join(",")}-${filters.attribute_values.join(",")}`;
+      if (lastFetchedRef.current === currentKey) return;
+      lastFetchedRef.current = currentKey;
+
+      setIsSidebarLoading(true);
+      try {
+        const { lat = "", lng = "" } =
+          (getCookie("userLocation") as UserLocation) || {};
+        const res = await getSidebarFilters({
+          latitude: lat,
+          longitude: lng,
+          categories: filters.categories.join(","),
+          brands: filters.brands.join(","),
+          attribute_values: filters.attribute_values.join(","),
+          ...(sidebarType ? { type: sidebarType } : {}),
+          ...(sidebarValue ? { value: sidebarValue } : {}),
+        });
+
+        if (res.success && res.data) {
+          setSidebarData(res.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sidebar filters:", error);
+      } finally {
+        setIsSidebarLoading(false);
+      }
+    },
+    [sidebarType, sidebarValue],
+  );
+
+  // Fetch sidebar data when filters change
+  useEffect(() => {
+    fetchSidebarFilters(pendingFilters);
+  }, [
+    pendingFilters.categories,
+    pendingFilters.brands,
+    pendingFilters.attribute_values,
+    fetchSidebarFilters,
+  ]);
+
+  // Prune pending filters if they become disabled in the new sidebar data
+  useEffect(() => {
+    if (!sidebarData) return;
+
+    const newCategories = pendingFilters.categories.filter((slug) => {
+      const cat = sidebarData.categories.find((c) => c.slug === slug);
+      if (cat && cat.enabled === false) return false;
+      return true;
+    });
+
+    const newBrands = pendingFilters.brands.filter((slug) => {
+      const br = sidebarData.brands.find((b) => b.slug === slug);
+      if (br && br.enabled === false) return false;
+      return true;
+    });
+
+    const newAttrValues = pendingFilters.attribute_values.filter((id) => {
+      const valId = Number(id);
+      const attributeValue = sidebarData.attributes
+        .flatMap((attr) => attr.values)
+        .find((v) => v.id === valId);
+      if (attributeValue && attributeValue.enabled === false) return false;
+      return true;
+    });
+
+    const isChanged =
+      newCategories.length !== pendingFilters.categories.length ||
+      newBrands.length !== pendingFilters.brands.length ||
+      newAttrValues.length !== pendingFilters.attribute_values.length;
+
+    if (isChanged) {
+      const prunedKey = `${newCategories.join(",")}-${newBrands.join(",")}-${newAttrValues.join(",")}`;
+      lastFetchedRef.current = prunedKey;
+
+      setPendingFilters((prev) => {
+        // Double-check to avoid unnecessary state updates
+        if (
+          prev.categories.length === newCategories.length &&
+          prev.brands.length === newBrands.length &&
+          prev.attribute_values.length === newAttrValues.length
+        ) {
+          return prev;
+        }
+        return {
+          ...prev,
+          categories: newCategories,
+          brands: newBrands,
+          attribute_values: newAttrValues,
+        };
+      });
+    }
+  }, [sidebarData]);
 
   const handleSearch = useCallback((value: string) => {
     const updatedFilters = { ...selectedFiltersRef.current, search: value };
@@ -148,9 +272,10 @@ const ProductFilter: FC<ProductFilterProps> = ({
 
   const getActiveFiltersCount = () => {
     return (
-      selectedFilters?.categories?.length ||
-      0 + selectedFilters?.brands?.length ||
-      0 + selectedFilters?.colors?.length ||
+      pendingFilters?.categories?.length ||
+      0 + pendingFilters?.brands?.length ||
+      0 + pendingFilters?.colors?.length ||
+      0 + pendingFilters?.attribute_values?.length ||
       0
     );
   };
@@ -160,18 +285,20 @@ const ProductFilter: FC<ProductFilterProps> = ({
       categories: [],
       brands: [],
       colors: [],
+      attribute_values: [],
       sort: "relevance",
       search: "",
     };
     setSearchInput("");
     lastAppliedSearch.current = "";
+    setPendingFilters(newFilters);
     onApplyFilters(newFilters);
   };
 
   return (
     <>
       {/* Mobile Filter Button */}
-      <div className="md:hidden flex items-center w-full justify-between gap-2 mb-4">
+      <div className="md:hidden flex items-start w-full justify-between gap-2 mb-4">
         <Badge
           color="primary"
           content={getActiveFiltersCount() || undefined}
@@ -189,17 +316,19 @@ const ProductFilter: FC<ProductFilterProps> = ({
           </Button>
         </Badge>
 
-        <Input
-          size="sm"
-          placeholder={t("search") || "Search products..."}
-          value={searchInput}
-          onValueChange={setSearchInput}
-          startContent={<Search className="w-4 h-4 text-default-400" />}
-          classNames={{
-            input: "text-sm",
-            inputWrapper: "h-9",
-          }}
-        />
+        <div className="flex-1 flex flex-col justify-center">
+          <Input
+            size="sm"
+            placeholder={t("search") || "Search products..."}
+            value={searchInput}
+            onValueChange={setSearchInput}
+            startContent={<Search className="w-4 h-4 text-default-400" />}
+            classNames={{
+              input: "text-sm",
+              inputWrapper: "h-9",
+            }}
+          />
+        </div>
 
         {/* Mobile Sort Dropdown */}
         <Select
@@ -250,17 +379,33 @@ const ProductFilter: FC<ProductFilterProps> = ({
           <DrawerBody className="p-4 flex flex-col gap-4">
             {/* Filter Sections */}
             <div className="flex flex-col gap-4">
-              <section id="product-filter-category-section">
-                <CategorySection
-                  selectedFilters={selectedFilters}
-                  setSelectedFilters={setSelectedFilters}
-                />
-              </section>
+              {!hideCategoryFilter && (
+                <section id="product-filter-category-section">
+                  <CategorySection
+                    categories={sidebarData?.categories || []}
+                    isLoading={isSidebarLoading}
+                    selectedFilters={pendingFilters}
+                    setSelectedFilters={setPendingFilters}
+                  />
+                </section>
+              )}
 
-              <section id="product-filter-brand-section">
-                <BrandSection
-                  selectedFilters={selectedFilters}
-                  setSelectedFilters={setSelectedFilters}
+              {!hideBrandFilter && (
+                <section id="product-filter-brand-section">
+                  <BrandSection
+                    brands={sidebarData?.brands || []}
+                    isLoading={isSidebarLoading}
+                    selectedFilters={pendingFilters}
+                    setSelectedFilters={setPendingFilters}
+                  />
+                </section>
+              )}
+
+              <section id="product-filter-attribute-section">
+                <AttributeSection
+                  attributes={sidebarData?.attributes || []}
+                  selectedFilters={pendingFilters}
+                  setSelectedFilters={setPendingFilters}
                 />
               </section>
             </div>
@@ -282,7 +427,7 @@ const ProductFilter: FC<ProductFilterProps> = ({
               className="flex-1 text-xs"
               color="primary"
               onPress={() => {
-                onApplyFilters(selectedFilters);
+                onApplyFilters(pendingFilters);
                 onClose();
               }}
             >
@@ -337,8 +482,11 @@ const ProductFilter: FC<ProductFilterProps> = ({
                 selectedKeys={[selectedFilters.sort]}
                 onSelectionChange={(keys) => {
                   const newSort = Array.from(keys)[0] as SortOption;
-                  const updatedFilters = { ...selectedFilters, sort: newSort };
-                  onApplyFilters(updatedFilters);
+                  setSelectedFilters((prev) => {
+                    const updatedFilters = { ...prev, sort: newSort };
+                    onApplyFilters(updatedFilters);
+                    return updatedFilters;
+                  });
                 }}
                 className="w-full"
                 classNames={{ trigger: "h-8 min-h-unit-8" }}
@@ -358,17 +506,33 @@ const ProductFilter: FC<ProductFilterProps> = ({
 
             {/* Filter Sections */}
             <ScrollShadow className="flex flex-col gap-4 overflow-y-auto max-h-96">
-              <section id="product-filter-category-section">
-                <CategorySection
-                  selectedFilters={selectedFilters}
-                  setSelectedFilters={setSelectedFilters}
-                />
-              </section>
+              {!hideCategoryFilter && (
+                <section id="product-filter-category-section">
+                  <CategorySection
+                    categories={sidebarData?.categories || []}
+                    isLoading={isSidebarLoading}
+                    selectedFilters={pendingFilters}
+                    setSelectedFilters={setPendingFilters}
+                  />
+                </section>
+              )}
 
-              <section id="product-filter-brand-section">
-                <BrandSection
-                  selectedFilters={selectedFilters}
-                  setSelectedFilters={setSelectedFilters}
+              {!hideBrandFilter && (
+                <section id="product-filter-brand-section">
+                  <BrandSection
+                    brands={sidebarData?.brands || []}
+                    isLoading={isSidebarLoading}
+                    selectedFilters={pendingFilters}
+                    setSelectedFilters={setPendingFilters}
+                  />
+                </section>
+              )}
+
+              <section id="product-filter-attribute-section">
+                <AttributeSection
+                  attributes={sidebarData?.attributes || []}
+                  selectedFilters={pendingFilters}
+                  setSelectedFilters={setPendingFilters}
                 />
               </section>
             </ScrollShadow>
@@ -389,7 +553,7 @@ const ProductFilter: FC<ProductFilterProps> = ({
               className="flex-1 text-xs"
               color="primary"
               size="sm"
-              onPress={() => onApplyFilters(selectedFilters)}
+              onPress={() => onApplyFilters(pendingFilters)}
             >
               {t("productFilter.applyFilters")}
             </Button>

@@ -1,15 +1,13 @@
 import { GetServerSideProps } from "next";
 import { getProducts, getSettings } from "@/routes/api";
-import React from "react";
-import Head from "next/head";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { isSSR } from "@/helpers/getters";
 import MyBreadcrumbs from "@/components/custom/MyBreadcrumbs";
 import PageHeader from "@/components/custom/PageHeader";
 import ProductCard from "@/components/Cards/ProductCard";
 import ProductCardSkeleton from "@/components/Skeletons/ProductCardSkeleton";
 import InfiniteScroll from "@/components/Functional/InfiniteScroll";
-import SubcategorySidebar from "@/components/Functional/SubcategorySidebar";
-import SubcategoryTabsMobile from "@/components/Functional/SubcategoryTabsMobile";
+import SubcategoryTabs from "@/components/Functional/SubcategoryTabs";
 import { useInfiniteData } from "@/hooks/useInfiniteData";
 import { Product, PaginatedResponse } from "@/types/ApiResponse";
 import { NextPageWithLayout } from "@/types";
@@ -24,23 +22,105 @@ import { formatString } from "@/helpers/validator";
 import { useTranslation } from "react-i18next";
 import { Button } from "@heroui/react";
 import PageHead from "@/SEO/PageHead";
+import ProductFilter, {
+  SelectedFilters,
+  SortOption,
+} from "@/components/Products/ProductFilter";
 
 interface CategoryProductsPageProps {
   initialProducts: PaginatedResponse<Product[]> | null;
+  initialFilters?: SelectedFilters;
   error?: string;
   categorySlug: string;
 }
 
 const PER_PAGE = 24;
 
+// Helper function to parse query parameters into filters
+const parseFiltersFromQuery = (query: {
+  [key: string]: string | string[] | undefined;
+}): SelectedFilters => {
+  const parseQueryParam = (param: string | string[] | undefined): string[] => {
+    if (!param) return [];
+    if (Array.isArray(param)) return param;
+    return param.split(",");
+  };
+
+  const parseSingleParam = (param: string | string[] | undefined): string => {
+    if (!param) return "";
+    if (Array.isArray(param)) return param[0] || "";
+    return param;
+  };
+
+  return {
+    categories: parseQueryParam(query.categories),
+    brands: parseQueryParam(query.brands),
+    colors: parseQueryParam(query.colors),
+    attribute_values: parseQueryParam(query.attribute_values),
+    sort: query.sort ? (query.sort as SortOption) : "relevance",
+    search: parseSingleParam(query.search),
+  };
+};
+
+// Helper function to convert filters to query parameters
+const filtersToQueryParams = (
+  filters: SelectedFilters,
+): Record<string, string> => {
+  const params: Record<string, string> = {};
+
+  if (filters.categories.length > 0) {
+    params.categories = filters.categories.join(",");
+  }
+  if (filters.brands.length > 0) {
+    params.brands = filters.brands.join(",");
+  }
+  if (filters.colors.length > 0) {
+    params.colors = filters.colors.join(",");
+  }
+  if (filters.attribute_values.length > 0) {
+    params.attribute_values = filters.attribute_values.join(",");
+  }
+  if (filters.sort) {
+    params.sort = filters.sort;
+  }
+  if (filters.search && filters.search.trim() !== "") {
+    params.search = filters.search.trim();
+  }
+
+  return params;
+};
+
 const CategoryProductsPage: NextPageWithLayout<CategoryProductsPageProps> = ({
   initialProducts,
+  initialFilters,
   categorySlug,
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const slug = categorySlug || (router.query.slug as string);
   const selectedSubcategory = (router.query.subcategory as string) || "";
+
+  // Initialize filters from initial props or router
+  const computedInitialFilters = useMemo(() => {
+    if (initialFilters) {
+      return initialFilters;
+    }
+    if (router.isReady) {
+      return parseFiltersFromQuery(router.query);
+    }
+    return {
+      categories: [],
+      brands: [],
+      colors: [],
+      attribute_values: [],
+      sort: "relevance" as SortOption,
+      search: "",
+    };
+  }, [initialFilters, router.isReady, router.query]);
+
+  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>(
+    computedInitialFilters,
+  );
 
   const {
     data: products,
@@ -62,40 +142,129 @@ const CategoryProductsPage: NextPageWithLayout<CategoryProductsPageProps> = ({
     initialTotal: initialProducts?.data?.total || 0,
     passLocation: true,
     dataKey: `/categories/${slug}${selectedSubcategory ? `/${selectedSubcategory}` : ""}`,
+    extraParams: {
+      brands:
+        selectedFilters?.brands?.length > 0
+          ? selectedFilters.brands.join(",")
+          : undefined,
+      colors:
+        selectedFilters?.colors?.length > 0
+          ? selectedFilters.colors.join(",")
+          : undefined,
+      attribute_values:
+        selectedFilters?.attribute_values?.length > 0
+          ? selectedFilters.attribute_values.join(",")
+          : undefined,
+      sort: selectedFilters?.sort ? selectedFilters.sort : undefined,
+      search: selectedFilters?.search || "",
+    },
   });
 
+  const updateURL = useCallback(
+    async (filters: SelectedFilters) => {
+      const queryParams = filtersToQueryParams(filters);
+
+      const filteredParams = Object.fromEntries(
+        Object.entries(queryParams).filter(
+          ([key, value]) => value && key !== "categories", // Categories are handled by subcategory param/tabs
+        ),
+      );
+
+      const isFilterCleared =
+        filters.brands.length === 0 &&
+        filters.colors.length === 0 &&
+        filters.attribute_values.length === 0 &&
+        filters.sort === "relevance" &&
+        (!filters.search || filters.search.trim() === "");
+
+      // Preserve dynamic route params and subcategory
+      const preservedQuery = { ...router.query };
+      // Remove all filter keys before adding new ones
+      [
+        "brands",
+        "colors",
+        "sort",
+        "search",
+        "attribute_values",
+        "categories",
+      ].forEach((key) => delete preservedQuery[key]);
+
+      await router.push(
+        {
+          pathname: router.pathname,
+          query: isFilterCleared
+            ? preservedQuery
+            : {
+                ...preservedQuery,
+                ...filteredParams,
+              },
+        },
+        undefined,
+        { shallow: true },
+      );
+    },
+    [router],
+  );
+
+  const onApplyFilters = useCallback(
+    async (filters: SelectedFilters) => {
+      setSelectedFilters(filters);
+      await updateURL(filters);
+    },
+    [updateURL],
+  );
+
   const handleSubcategorySelect = async (subSlug: string) => {
-    await router.push(`/categories/${slug}?subcategory=${subSlug}`, undefined, {
-      shallow: true,
-      scroll: false,
-    });
+    const nextQuery = { ...router.query, subcategory: subSlug };
+    // Maintain other filters if they exist
+    await router.push(
+      {
+        pathname: router.pathname,
+        query: nextQuery,
+      },
+      undefined,
+      {
+        shallow: true,
+        scroll: false,
+      },
+    );
   };
 
   const handleClearSubcategory = async () => {
-    // Clear subcategory and go back to main category
-    await router.push(`/categories/${slug}`, undefined, {
-      shallow: true,
-      scroll: false,
-    });
+    const nextQuery = { ...router.query };
+    delete nextQuery.subcategory;
+
+    await router.push(
+      {
+        pathname: router.pathname,
+        query: nextQuery,
+      },
+      undefined,
+      {
+        shallow: true,
+        scroll: false,
+      },
+    );
   };
+
+  // Sync filters when they change in URL (for browser back/forward)
+  useEffect(() => {
+    const handleRouteChange = () => {
+      const newFilters = parseFiltersFromQuery(router.query);
+      setSelectedFilters((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(newFilters)) return prev;
+        return newFilters;
+      });
+    };
+
+    router.events.on("routeChangeComplete", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChange);
+    };
+  }, [router.events, router.query]);
 
   return (
     <>
-      <Head>
-        <title>
-          {t("pages.categoryProducts.metaTitle", {
-            category: formatString(selectedSubcategory || slug),
-          })}
-        </title>
-        <meta
-          name="description"
-          content={t("pages.categoryProducts.metaDescription", {
-            category: formatString(selectedSubcategory || slug),
-            count: products?.length || 0,
-          })}
-        />
-      </Head>
-
       <PageHead
         pageTitle={`${formatString(slug || "")} ${t("products")}` || ""}
       />
@@ -114,7 +283,7 @@ const CategoryProductsPage: NextPageWithLayout<CategoryProductsPageProps> = ({
         <PageHeader
           title={t("pages.categoryProducts.title", {
             category: formatString(
-              selectedSubcategory || slug || t("home.categories.title")
+              selectedSubcategory || slug || t("home.categories.title"),
             ),
           })}
           subtitle={t("pages.categoryProducts.subtitle", {
@@ -124,29 +293,34 @@ const CategoryProductsPage: NextPageWithLayout<CategoryProductsPageProps> = ({
             total ? `${total} ${t("pages.categoryProducts.highlight")}` : ""
           }
         />
+
         <button
           id="category-products-refetch"
           onClick={refetch}
           className="hidden"
         />
 
-        <div className="w-full">
-          <div className="flex gap-4 flex-col md:flex-row">
-            {/* Mobile subcategory tabs */}
-            <div className="w-full md:hidden">
-              <SubcategoryTabsMobile
-                parentSlug={slug}
-                selectedSubcategory={selectedSubcategory}
-                onSelect={handleSubcategorySelect}
-                onClear={handleClearSubcategory}
-              />
-            </div>
-            <div className="w-fit md:block hidden">
-              <SubcategorySidebar
-                parentSlug={slug}
-                selectedSubcategory={selectedSubcategory}
-                onSelect={handleSubcategorySelect}
-                onClear={handleClearSubcategory}
+        {/* Subcategory Tabs at the top */}
+        <SubcategoryTabs
+          parentSlug={slug}
+          selectedSubcategory={selectedSubcategory}
+          onSelect={handleSubcategorySelect}
+          onClear={handleClearSubcategory}
+          className="mb-4"
+        />
+
+        <div className="w-full mt-4">
+          <div className="flex gap-2 flex-col md:flex-row">
+            <div className="flex-none h-full">
+              <ProductFilter
+                selectedFilters={selectedFilters}
+                setSelectedFilters={setSelectedFilters}
+                onApplyFilters={onApplyFilters}
+                totalProducts={total}
+                sidebarType="category"
+                sidebarValue={selectedSubcategory || slug}
+                searchComponent={true}
+                hideCategoryFilter={true} // Hidden because subcategories are in tabs at the top
               />
             </div>
 
@@ -167,7 +341,7 @@ const CategoryProductsPage: NextPageWithLayout<CategoryProductsPageProps> = ({
                 </div>
 
                 {isLoadingMore && (
-                  <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 mt-6">
+                  <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 mt-6">
                     {Array.from({ length: PER_PAGE }).map((_, i) => (
                       <ProductCardSkeleton key={`loading-${i}`} />
                     ))}
@@ -185,7 +359,7 @@ const CategoryProductsPage: NextPageWithLayout<CategoryProductsPageProps> = ({
                     icon={Package}
                     title={t("pages.categoryProducts.noProducts.title")}
                     description={t(
-                      "pages.categoryProducts.noProducts.description"
+                      "pages.categoryProducts.noProducts.description",
                     )}
                     customActions={
                       <div className="flex w-full justify-center items-center">
@@ -228,10 +402,11 @@ export const getServerSideProps: GetServerSideProps | undefined = isSSR()
           };
         }
 
+        const initialFilters = parseFiltersFromQuery(context.query);
         const rawSub = (context.query && context.query.subcategory) || "";
         const subcategory = Array.isArray(rawSub) ? rawSub[0] : rawSub;
 
-        const products = await getProducts({
+        const apiParams: any = {
           page: 1,
           per_page: PER_PAGE,
           categories: subcategory || slug,
@@ -239,12 +414,32 @@ export const getServerSideProps: GetServerSideProps | undefined = isSSR()
           latitude: lat,
           longitude: lng,
           include_child_categories: 1,
-        });
+        };
+
+        if (initialFilters.brands.length > 0) {
+          apiParams.brands = initialFilters.brands.join(",");
+        }
+        if (initialFilters.colors.length > 0) {
+          apiParams.colors = initialFilters.colors.join(",");
+        }
+        if (initialFilters.attribute_values.length > 0) {
+          apiParams.attribute_values =
+            initialFilters.attribute_values.join(",");
+        }
+        if (initialFilters.sort) {
+          apiParams.sort = initialFilters.sort;
+        }
+        if (initialFilters.search) {
+          apiParams.search = initialFilters.search;
+        }
+
+        const products = await getProducts(apiParams);
         const settings = await getSettings();
 
         return {
           props: {
             initialProducts: products,
+            initialFilters,
             initialSettings: settings.data,
             categorySlug: slug,
           },

@@ -432,6 +432,9 @@ const ReturnOrderItemModal: FC<ReturnOrderItemModalProps> = ({
                   const isReturnable = canReturnItem(item);
                   const alreadyReturned = hasExistingReturn(item);
                   const disableAction = !isReturnable || alreadyReturned;
+                  const productName =
+                    item.product?.name || item.variant_title;
+                  const productSlug = item.product?.slug;
                   const return_deadline = item.return_deadline
                     ? new Date(item.return_deadline).toLocaleString()
                     : t("na");
@@ -446,7 +449,7 @@ const ReturnOrderItemModal: FC<ReturnOrderItemModalProps> = ({
                       )
                     : "";
                   const recentReturnStatus =
-                    item.returns[0]?.return_status || "";
+                    item.returns?.[0]?.return_status || "";
 
                   // Calculate price with tax per unit
                   const priceWithTax =
@@ -466,15 +469,22 @@ const ReturnOrderItemModal: FC<ReturnOrderItemModalProps> = ({
                           alt={item.product?.name || "item"}
                         />
                         <div className="min-w-0">
-                          <Link
-                            href={`/products/${item.product.slug}`}
-                            title={
-                              item.product.name || item?.variant_title || ""
-                            }
-                            className="text-xs font-medium text-foreground truncate"
-                          >
-                            {item.product.name || item.variant_title}
-                          </Link>
+                          {productSlug ? (
+                            <Link
+                              href={`/products/${productSlug}`}
+                              title={productName}
+                              className="text-xs font-medium text-foreground truncate"
+                            >
+                              {productName}
+                            </Link>
+                          ) : (
+                            <span
+                              title={productName}
+                              className="text-xs font-medium text-foreground truncate"
+                            >
+                              {productName || t("na")}
+                            </span>
+                          )}
                           <div className="text-xxs text-foreground/50 flex gap-2 flex-wrap">
                             <span>
                               {t("qty")}: {item.quantity}
@@ -814,7 +824,7 @@ const ReturnOrderItemModal: FC<ReturnOrderItemModalProps> = ({
                         />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-foreground truncate">
-                            {item.product.name || item.variant_title || ""}
+                            {item.product?.name || item.variant_title || ""}
                           </p>
                           <p className="text-xxs text-foreground/60 flex flex-wrap gap-2">
                             <span>

@@ -29,6 +29,7 @@ import RecentSearchItem from "./RecentSearchItem";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
+import Image from "next/image";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -419,9 +420,11 @@ const SearchModal: React.FC<SearchModalProps> = ({
                       }}
                     >
                       <div className="w-10 h-10 shrink-0 relative overflow-hidden rounded-md bg-default-100 border border-divider">
-                        <img
+                        <Image
                           src={product.main_image}
                           alt={product.title}
+                          height={40}
+                          width={40}
                           className="w-full h-full object-cover"
                         />
                       </div>

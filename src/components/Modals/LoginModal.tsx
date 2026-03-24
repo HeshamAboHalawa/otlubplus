@@ -103,12 +103,6 @@ export const LoginModal: FC<LoginModalProps> = ({ triggerView = "btn" }) => {
   // OTP login states
   const [otpStep, setOtpStep] = useState<OtpStep>("phone");
   const [otpPhoneNumber, setOtpPhoneNumber] = useState("");
-  const [otpNumberDetails, setOtpNumberDetails] = useState({
-    countryCode: "",
-    phoneNumber: "",
-    dialCode: "",
-    name: "",
-  });
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -241,14 +235,11 @@ export const LoginModal: FC<LoginModalProps> = ({ triggerView = "btn" }) => {
 
   // Handle OTP phone input change
   const handleOtpPhoneChange = (
-    countryCode: string,
     phoneNumber: string,
     dialCode: string,
-    name: string,
   ) => {
     const formattedNumber = `${dialCode}${phoneNumber}`;
     setOtpPhoneNumber(formattedNumber);
-    setOtpNumberDetails({ countryCode, dialCode, phoneNumber, name });
 
     // Clear phone error when user is typing
     if (errors.phone) {
@@ -576,12 +567,6 @@ export const LoginModal: FC<LoginModalProps> = ({ triggerView = "btn" }) => {
     // Reset OTP states
     setOtpPhoneNumber("");
     setOtpStep("phone");
-    setOtpNumberDetails({
-      countryCode: "",
-      phoneNumber: "",
-      dialCode: "",
-      name: "",
-    });
 
     // Cleanup Firebase
     if (window.confirmationResult) {

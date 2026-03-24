@@ -204,10 +204,10 @@ const PhoneInput: FC<PhoneInputProps> = ({
     [onPhoneChange, state.phoneNumber],
   );
 
-  const formatNumber = useCallback((num: string, country: string): string => {
+  const formatNumber = useCallback((num: string): string => {
     // Don't format the number - just return it as is to avoid leading zeros and spaces
     // The user will see exactly what they type
-    return num;
+     return num;
   }, []);
 
   const handlePhoneNumberChange = useCallback(
@@ -215,7 +215,7 @@ const PhoneInput: FC<PhoneInputProps> = ({
       const value = e.target.value;
       const cleanedValue = value.replace(/[^\d+]/g, "");
       const formattedValue = state.selectedCountryCode
-        ? formatNumber(cleanedValue, state.selectedCountryCode)
+        ? formatNumber(cleanedValue)
         : cleanedValue;
       setState((prev) => ({ ...prev, phoneNumber: formattedValue }));
       onPhoneChange?.(

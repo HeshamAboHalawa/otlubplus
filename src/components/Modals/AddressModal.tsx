@@ -339,7 +339,7 @@ const AddressModal: FC<AddressModalProps> = ({
                 initialLocation={initialLocation}
               />
             </div>
-            <div className="h-[400px] rounded-lg overflow-hidden shadow-md">
+            <div className="h-[380px] md:h-[400px] rounded-lg overflow-hidden shadow-md">
               <GoogleMap
                 latLng={location || { lat: 0, lng: 0 }}
                 onLocationUpdate={handleMapLocationUpdate}
@@ -483,3 +483,4 @@ const AddressModal: FC<AddressModalProps> = ({
 };
 
 export default AddressModal;
+

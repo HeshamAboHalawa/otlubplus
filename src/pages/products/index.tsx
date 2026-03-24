@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next";
 import { getProducts, getSettings } from "@/routes/api";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/router";
 import { isSSR } from "@/helpers/getters";
 import MyBreadcrumbs from "@/components/custom/MyBreadcrumbs";
@@ -40,6 +40,7 @@ interface GetProductsParams {
   sort?: string;
   search?: string;
   include_child_categories?: number;
+  attribute_values?: string;
 }
 
 export type SortOption = "relevance" | "price_asc" | "price_desc";
@@ -48,6 +49,7 @@ export type ProductFilter = {
   categories: string[];
   brands: string[];
   colors: string[];
+  attribute_values: string[];
   sort: SortOption;
   search?: string;
 };
@@ -73,6 +75,7 @@ const parseFiltersFromQuery = (query: {
     categories: parseQueryParam(query.categories),
     brands: parseQueryParam(query.brands),
     colors: parseQueryParam(query.colors),
+    attribute_values: parseQueryParam(query.attribute_values),
     sort: query.sort ? (query.sort as SortOption) : "relevance",
     search: parseSingleParam(query.search),
   };
@@ -80,7 +83,7 @@ const parseFiltersFromQuery = (query: {
 
 // Helper function to convert filters to query parameters
 const filtersToQueryParams = (
-  filters: ProductFilter
+  filters: ProductFilter,
 ): Record<string, string> => {
   const params: Record<string, string> = {};
 
@@ -92,6 +95,9 @@ const filtersToQueryParams = (
   }
   if (filters.colors.length > 0) {
     params.colors = filters.colors.join(",");
+  }
+  if (filters.attribute_values.length > 0) {
+    params.attribute_values = filters.attribute_values.join(",");
   }
   if (filters.sort) {
     params.sort = filters.sort;
@@ -125,13 +131,14 @@ const ProductsPage: NextPageWithLayout<ProductsPageProps> = ({
       categories: [],
       brands: [],
       colors: [],
+      attribute_values: [],
       sort: "relevance" as SortOption,
       search: "",
     };
   }, [initialFilters, router.isReady, router.query]);
 
   const [selectedFilters, setSelectedFilters] = useState<ProductFilter>(
-    computedInitialFilters
+    computedInitialFilters,
   );
 
   const {
@@ -163,6 +170,10 @@ const ProductsPage: NextPageWithLayout<ProductsPageProps> = ({
         selectedFilters?.colors?.length > 0
           ? selectedFilters.colors.join(",")
           : undefined,
+      attribute_values:
+        selectedFilters?.attribute_values?.length > 0
+          ? selectedFilters.attribute_values.join(",")
+          : undefined,
       sort: selectedFilters?.sort ? selectedFilters.sort : undefined,
       search: selectedFilters?.search || "",
       include_child_categories: 0,
@@ -170,48 +181,71 @@ const ProductsPage: NextPageWithLayout<ProductsPageProps> = ({
   });
 
   // Update URL when filters change
-  const updateURL = async (filters: ProductFilter) => {
-    const queryParams = filtersToQueryParams(filters);
+  const updateURL = useCallback(
+    async (filters: ProductFilter) => {
+      const queryParams = filtersToQueryParams(filters);
 
-    const filteredParams = Object.fromEntries(
-      Object.entries(queryParams).filter(([, value]) => value)
-    );
+      const filteredParams = Object.fromEntries(
+        Object.entries(queryParams).filter(([, value]) => value),
+      );
 
-    // Check if all filters are empty (clear all case)
-    const isFilterCleared =
-      filters.categories.length === 0 &&
-      filters.brands.length === 0 &&
-      filters.colors.length === 0 &&
-      filters.sort === "relevance" &&
-      (!filters.search || filters.search.trim() === "");
+      // Check if all filters are empty (clear all case)
+      const isFilterCleared =
+        filters.categories.length === 0 &&
+        filters.brands.length === 0 &&
+        filters.colors.length === 0 &&
+        filters.attribute_values.length === 0 &&
+        filters.sort === "relevance" &&
+        (!filters.search || filters.search.trim() === "");
 
-    await router.push(
-      {
-        pathname: router.pathname,
-        // If clearing filters, don't keep existing query params
-        query: isFilterCleared
-          ? {}
-          : {
-              ...router.query, // Keep existing query params for non-filter related params
-              ...filteredParams,
-            },
-      },
-      undefined,
-      { shallow: true }
-    );
-  };
+      // Preserve any non-filter query parameters
+      const preservedQuery = Object.fromEntries(
+        Object.entries(router.query || {}).filter(
+          ([key]) =>
+            ![
+              "categories",
+              "brands",
+              "colors",
+              "sort",
+              "search",
+              "attribute_values",
+            ].includes(key),
+        ),
+      );
 
-  const onApplyFilters = async (filters: ProductFilter) => {
-    setSelectedFilters(filters);
-    await updateURL(filters);
-    refetch();
-  };
+      await router.push(
+        {
+          pathname: router.pathname,
+          query: isFilterCleared
+            ? preservedQuery
+            : {
+                ...preservedQuery,
+                ...filteredParams,
+              },
+        },
+        undefined,
+        { shallow: true },
+      );
+    },
+    [router],
+  );
+
+  const onApplyFilters = useCallback(
+    async (filters: ProductFilter) => {
+      setSelectedFilters(filters);
+      await updateURL(filters);
+    },
+    [updateURL],
+  );
 
   // Listen for browser back/forward navigation
   useEffect(() => {
     const handleRouteChange = () => {
       const newFilters = parseFiltersFromQuery(router.query);
-      setSelectedFilters(newFilters);
+      setSelectedFilters((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(newFilters)) return prev;
+        return newFilters;
+      });
     };
 
     router.events.on("routeChangeComplete", handleRouteChange);
@@ -349,6 +383,10 @@ export const getServerSideProps: GetServerSideProps | undefined = isSSR()
         if (initialFilters.colors.length > 0) {
           apiParams.colors = initialFilters.colors.join(",");
         }
+        if (initialFilters.attribute_values.length > 0) {
+          apiParams.attribute_values =
+            initialFilters.attribute_values.join(",");
+        }
         if (initialFilters.sort) {
           apiParams.sort = initialFilters.sort;
         }
@@ -375,6 +413,7 @@ export const getServerSideProps: GetServerSideProps | undefined = isSSR()
               categories: [],
               brands: [],
               colors: [],
+              attribute_values: [],
               sort: "relevance",
             },
             initialSettings: null,

@@ -9,33 +9,22 @@ import {
 } from "@heroui/react";
 import { Category } from "@/types/ApiResponse";
 import { ChevronLeft } from "lucide-react";
-import { getCategories } from "@/routes/api";
-import { useInfiniteData } from "@/hooks/useInfiniteData";
 import { useTranslation } from "react-i18next";
 
 interface CategorySectionProps {
+  categories: Category[];
   selectedFilters: SelectedFilters;
   setSelectedFilters: React.Dispatch<React.SetStateAction<SelectedFilters>>;
+  isLoading?: boolean;
 }
 
 const CategorySection: FC<CategorySectionProps> = ({
+  categories,
   selectedFilters,
   setSelectedFilters,
+  isLoading = false,
 }) => {
   const { t } = useTranslation();
-
-  const {
-    data: categories,
-    isLoading,
-    hasMore,
-    loadMore,
-  } = useInfiniteData<Category>({
-    fetcher: getCategories,
-    perPage: 20,
-    dataKey: "categories",
-    forceFetchOnMount: true,
-    passLocation: true,
-  });
 
   const handleCategoryChange = (categorySlug: string) => {
     setSelectedFilters((prev) => {
@@ -83,16 +72,6 @@ const CategorySection: FC<CategorySectionProps> = ({
           <ScrollShadow
             hideScrollBar
             className="flex flex-col gap-2 p-2 max-h-[25vh]"
-            onScroll={(e: React.UIEvent<HTMLDivElement>) => {
-              const target = e.currentTarget;
-              if (
-                target.scrollTop + target.clientHeight >=
-                  target.scrollHeight - 20 &&
-                hasMore
-              ) {
-                loadMore();
-              }
-            }}
           >
             {isLoading ? (
               <div className="space-y-2">
@@ -105,17 +84,18 @@ const CategorySection: FC<CategorySectionProps> = ({
                   </div>
                 ))}
               </div>
-            ) : categories.length > 0 ? (
+            ) : categories && categories.length > 0 ? (
               categories.map((category) => (
                 <Checkbox
                   key={category.id}
                   isSelected={selectedFilters?.categories?.includes(
                     category.slug,
                   )}
+                  isDisabled={category.enabled === false}
                   onChange={() => handleCategoryChange(category.slug)}
                   className="text-xs"
                   classNames={{
-                    label: "text-xs",
+                    label: `text-xs ${category.enabled === false ? "opacity-50" : ""}`,
                     wrapper: "w-4 h-4",
                   }}
                 >
@@ -125,12 +105,6 @@ const CategorySection: FC<CategorySectionProps> = ({
             ) : (
               <div className="text-center py-2">
                 {t("category.noCategories")}
-              </div>
-            )}
-
-            {hasMore && (
-              <div className="text-center py-1 text-xs text-gray-500">
-                {t("category.scrollMore")}
               </div>
             )}
           </ScrollShadow>

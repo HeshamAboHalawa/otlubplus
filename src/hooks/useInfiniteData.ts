@@ -1,7 +1,7 @@
 import { UserLocation } from "@/components/Location/types/LocationAutoComplete.types";
 import { isSSR } from "@/helpers/getters";
 import { getCookie } from "@/lib/cookies";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState , useMemo } from "react";
 import useSWR from "swr";
 
 interface UseInfiniteDataProps<T> {
@@ -43,6 +43,22 @@ export const useInfiniteData = <T>({
 
   const isLoadingRef = useRef(false);
   const currentPageRef = useRef(1);
+  const extraParamsRef = useRef(extraParams);
+  const passLocationRef = useRef(passLocation);
+
+  useEffect(() => {
+    extraParamsRef.current = extraParams;
+    passLocationRef.current = passLocation;
+  }, [extraParams, passLocation]);
+
+  const serializedParams = useMemo(
+    () => JSON.stringify(extraParams),
+    [extraParams],
+  );
+
+  const swrKey = dataKey
+    ? [`/infinite-data-${dataKey}`, serializedParams]
+    : ["/infinite-data", serializedParams];
 
   const {
     data: swrResponse,
@@ -51,15 +67,18 @@ export const useInfiniteData = <T>({
     error,
     mutate,
   } = useSWR(
-    dataKey ? `/infinite-data-${dataKey}` : "/infinite-data",
-    async () => {
+    swrKey,
+    async ([, params]: [string, string]) => {
+      const currentParams = JSON.parse(params);
       const { lat = "", lng = "" } =
         (getCookie("userLocation") as UserLocation) || {};
-      const location = passLocation ? { latitude: lat, longitude: lng } : {};
+      const location = passLocationRef.current
+        ? { latitude: lat, longitude: lng }
+        : {};
       const res = await fetcher({
         page: 1,
         per_page: perPage,
-        ...extraParams,
+        ...currentParams,
         ...location,
       });
       if (res.success) {
@@ -69,9 +88,9 @@ export const useInfiniteData = <T>({
       return [];
     },
     {
-      revalidateOnFocus: !isSSR(),
+      revalidateOnFocus: false,
       revalidateOnMount: forceFetchOnMount ? forceFetchOnMount : !isSSR(),
-    }
+    },
   );
 
   useEffect(() => {
@@ -104,13 +123,15 @@ export const useInfiniteData = <T>({
     currentPageRef.current = nextPage;
 
     const { lat = "", lng = "" } = getCookie("userLocation") as UserLocation;
-    const location = passLocation ? { latitude: lat, longitude: lng } : {};
+    const location = passLocationRef.current
+      ? { latitude: lat, longitude: lng }
+      : {};
 
     try {
       const res = await fetcher({
         page: nextPage,
         per_page: perPage,
-        ...extraParams,
+        ...extraParamsRef.current,
         ...location,
       });
 
@@ -133,7 +154,7 @@ export const useInfiniteData = <T>({
       setIsLoadingMore(false);
       isLoadingRef.current = false;
     }
-  }, [page, perPage, extraParams, hasMore, fetcher, data.length, passLocation]);
+  }, [page, perPage, hasMore, fetcher, data.length]);
 
   const refetch = useCallback(async () => {
     setPage(1);

@@ -1,6 +1,7 @@
 import { FC, useState } from "react";
 import {
   BottomSection,
+  CustomProductSections,
   ProductDetailSection,
   ProductImgSection,
   SimilarProductsSection,
@@ -112,6 +113,13 @@ const ProductDetailPageView: FC<ProductPageProps> = ({
         />
       </section>
 
+      {initialProduct?.custom_product_sections && (
+        <section id="custom-product-sections">
+          <CustomProductSections
+            sections={initialProduct.custom_product_sections}
+          />
+        </section>
+      )}
       <section id="productPage-bottom-section">
         <BottomSection initialProduct={initialProduct} />
       </section>

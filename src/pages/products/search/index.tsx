@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next";
 import { getProducts, getSettings } from "@/routes/api";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/router";
 import { isSSR } from "@/helpers/getters";
 import MyBreadcrumbs from "@/components/custom/MyBreadcrumbs";
@@ -16,15 +16,19 @@ import { getUserLocationFromContext } from "@/helpers/functionalHelpers";
 import { getAccessTokenFromContext } from "@/helpers/auth";
 import InfiniteScrollStatus from "@/components/Functional/InfiniteScrollStatus";
 import NoProductsFound from "@/components/NoProductsFound";
-import { ArrowRight, ShoppingCart } from "lucide-react";
+import { ArrowRight, ShoppingCart, Search } from "lucide-react";
 import PageHead from "@/SEO/PageHead";
 import { useTranslation } from "react-i18next";
 import { Button } from "@heroui/react";
 import { loadTranslations } from "../../../../i18n";
+import {
+  SelectedFilters,
+  SortOption,
+} from "@/components/Products/ProductFilter";
 
 interface ProductsPageProps {
   initialProducts: PaginatedResponse<Product[]> | null;
-  initialFilters: ProductFilter;
+  initialFilters: SelectedFilters;
   query: string;
 }
 
@@ -40,38 +44,38 @@ interface GetProductsParams {
   sort?: string;
   search?: string;
   include_child_categories?: number;
+  attribute_values?: string;
 }
-
-export type SortOption = "relevance" | "price_asc" | "price_desc";
-
-export type ProductFilter = {
-  categories: string[];
-  brands: string[];
-  colors: string[];
-  sort: SortOption;
-};
 
 const PER_PAGE = 18;
 
 const parseFiltersFromQuery = (query: {
   [key: string]: string | string[] | undefined;
-}): ProductFilter => {
+}): SelectedFilters => {
   const parseQueryParam = (param: string | string[] | undefined): string[] => {
     if (!param) return [];
     if (Array.isArray(param)) return param;
     return param.split(",");
   };
 
+  const parseSingleParam = (param: string | string[] | undefined): string => {
+    if (!param) return "";
+    if (Array.isArray(param)) return param[0] || "";
+    return param;
+  };
+
   return {
     categories: parseQueryParam(query.categories),
     brands: parseQueryParam(query.brands),
     colors: parseQueryParam(query.colors),
+    attribute_values: parseQueryParam(query.attribute_values),
     sort: query.sort ? (query.sort as SortOption) : "relevance",
+    search: parseSingleParam(query.search),
   };
 };
 
 const filtersToQueryParams = (
-  filters: ProductFilter
+  filters: SelectedFilters,
 ): Record<string, string> => {
   const params: Record<string, string> = {};
 
@@ -84,8 +88,14 @@ const filtersToQueryParams = (
   if (filters.colors.length > 0) {
     params.colors = filters.colors.join(",");
   }
+  if (filters.attribute_values.length > 0) {
+    params.attribute_values = filters.attribute_values.join(",");
+  }
   if (filters.sort) {
     params.sort = filters.sort;
+  }
+  if (filters.search && filters.search.trim() !== "") {
+    params.search = filters.search.trim();
   }
 
   return params;
@@ -112,17 +122,18 @@ const SearchResultsPage: NextPageWithLayout<ProductsPageProps> = ({
       categories: [],
       brands: [],
       colors: [],
+      attribute_values: [],
       sort: "relevance" as SortOption,
+      search: "",
     };
   }, [initialFilters, router.isReady, router.query]);
 
-  const [selectedFilters, setSelectedFilters] = useState<ProductFilter>(
-    computedInitialFilters
+  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>(
+    computedInitialFilters,
   );
 
   const { q } = router.query;
-
-  const safeQuery = query || q || "";
+  const safeQuery = query || (typeof q === "string" ? q : "");
 
   const {
     data: products,
@@ -153,51 +164,80 @@ const SearchResultsPage: NextPageWithLayout<ProductsPageProps> = ({
         selectedFilters?.colors?.length > 0
           ? selectedFilters.colors.join(",")
           : undefined,
+      attribute_values:
+        selectedFilters?.attribute_values?.length > 0
+          ? selectedFilters.attribute_values.join(",")
+          : undefined,
       sort: selectedFilters?.sort ? selectedFilters.sort : undefined,
-      search: safeQuery,
+      search: selectedFilters?.search || safeQuery,
       include_child_categories: 0,
     },
   });
 
-  const updateURL = async (filters: ProductFilter) => {
-    const queryParams = filtersToQueryParams(filters);
+  const updateURL = useCallback(
+    async (filters: SelectedFilters) => {
+      const queryParams = filtersToQueryParams(filters);
 
-    const filteredParams = Object.fromEntries(
-      Object.entries(queryParams).filter(([, value]) => value)
-    );
+      const filteredParams = Object.fromEntries(
+        Object.entries(queryParams).filter(([, value]) => value),
+      );
 
-    const isFilterCleared =
-      filters.categories.length === 0 &&
-      filters.brands.length === 0 &&
-      filters.colors.length === 0 &&
-      filters.sort === "relevance";
+      const isFilterCleared =
+        filters.categories.length === 0 &&
+        filters.brands.length === 0 &&
+        filters.colors.length === 0 &&
+        filters.attribute_values.length === 0 &&
+        filters.sort === "relevance" &&
+        (!filters.search || filters.search.trim() === "");
 
-    await router.push(
-      {
-        pathname: router.pathname,
-        query: isFilterCleared
-          ? { q: safeQuery }
-          : {
-              q: safeQuery,
-              ...filteredParams,
-            },
-      },
-      undefined,
-      { shallow: true }
-    );
-  };
+      // Preserve the search query 'q' from the route but filter out other filter params
+      const preservedQuery = Object.fromEntries(
+        Object.entries(router.query || {}).filter(
+          ([key]) =>
+            ![
+              "categories",
+              "brands",
+              "colors",
+              "sort",
+              "search",
+              "attribute_values",
+            ].includes(key),
+        ),
+      );
 
-  const onApplyFilters = async (filters: ProductFilter) => {
-    setSelectedFilters(filters);
-    await updateURL(filters);
-    refetch();
-  };
+      await router.push(
+        {
+          pathname: router.pathname,
+          query: isFilterCleared
+            ? preservedQuery
+            : {
+                ...preservedQuery,
+                ...filteredParams,
+              },
+        },
+        undefined,
+        { shallow: true },
+      );
+    },
+    [router],
+  );
+
+  const onApplyFilters = useCallback(
+    async (filters: SelectedFilters) => {
+      setSelectedFilters(filters);
+      await updateURL(filters);
+    },
+    [updateURL],
+  );
 
   // Sync filters when they change in URL (for browser back/forward)
   useEffect(() => {
     const handleRouteChange = () => {
       const newFilters = parseFiltersFromQuery(router.query);
-      setSelectedFilters(newFilters);
+      setSelectedFilters((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(newFilters)) return prev;
+        return newFilters;
+      });
     };
 
     router.events.on("routeChangeComplete", handleRouteChange);
@@ -215,7 +255,7 @@ const SearchResultsPage: NextPageWithLayout<ProductsPageProps> = ({
           breadcrumbs={[
             { href: "/products", label: t("pageTitle.products") },
             {
-              href: `/products/search?q=${encodeURIComponent(query)}`,
+              href: `/products/search?q=${encodeURIComponent(safeQuery)}`,
               label: `${t("search_results")} (${safeQuery})`,
             },
           ]}
@@ -234,6 +274,9 @@ const SearchResultsPage: NextPageWithLayout<ProductsPageProps> = ({
               setSelectedFilters={setSelectedFilters}
               onApplyFilters={onApplyFilters}
               totalProducts={total}
+              sidebarType="search"
+              sidebarValue={safeQuery}
+              searchComponent={true}
             />
           </div>
 
@@ -244,7 +287,7 @@ const SearchResultsPage: NextPageWithLayout<ProductsPageProps> = ({
               onLoadMore={loadMore}
             >
               <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
-                {isLoading || isValidating
+                {isLoading && products.length === 0
                   ? Array.from({ length: PER_PAGE }).map((_, i) => (
                       <ProductCardSkeleton key={i} />
                     ))
@@ -271,26 +314,36 @@ const SearchResultsPage: NextPageWithLayout<ProductsPageProps> = ({
                   hasMore={hasMore}
                 />
               ) : (
-                <NoProductsFound
-                  icon={ShoppingCart}
-                  title={t("no_products_found")}
-                  description={t("no_products_found_message", { safeQuery })}
-                  customActions={
-                    <div className="flex w-full justify-center items-center">
-                      <Button
-                        color="primary"
-                        className="h-8"
-                        variant="solid"
-                        onPress={() => {
-                          router.push("/");
-                        }}
-                        endContent={<ArrowRight size={16} />}
-                      >
-                        {t("home_title")}
-                      </Button>
-                    </div>
-                  }
-                />
+                !isLoading && (
+                  <NoProductsFound
+                    icon={safeQuery.trim().length === 1 ? Search : ShoppingCart}
+                    title={
+                      safeQuery.trim().length === 1
+                        ? t("type_at_least_2_chars")
+                        : t("no_products_found")
+                    }
+                    description={
+                      safeQuery.trim().length === 1
+                        ? t("enter_min_2_chars")
+                        : t("no_products_found_message", { safeQuery })
+                    }
+                    customActions={
+                      <div className="flex w-full justify-center items-center">
+                        <Button
+                          color="primary"
+                          className="h-8"
+                          variant="solid"
+                          onPress={() => {
+                            router.push("/");
+                          }}
+                          endContent={<ArrowRight size={16} />}
+                        >
+                          {t("home_title")}
+                        </Button>
+                      </div>
+                    }
+                  />
+                )
               )}
             </InfiniteScroll>
           </div>
@@ -314,7 +367,7 @@ export const getServerSideProps: GetServerSideProps | undefined = isSSR()
 
         const initialFilters = parseFiltersFromQuery(context.query);
 
-        const apiParams: GetProductsParams = {
+        const apiParams: Record<string, any> = {
           page: 1,
           per_page: PER_PAGE,
           latitude: lat,
@@ -332,6 +385,10 @@ export const getServerSideProps: GetServerSideProps | undefined = isSSR()
         }
         if (initialFilters.colors.length > 0) {
           apiParams.colors = initialFilters.colors.join(",");
+        }
+        if (initialFilters.attribute_values.length > 0) {
+          apiParams.attribute_values =
+            initialFilters.attribute_values.join(",");
         }
         if (initialFilters.sort) {
           apiParams.sort = initialFilters.sort;
@@ -357,6 +414,7 @@ export const getServerSideProps: GetServerSideProps | undefined = isSSR()
               categories: [],
               brands: [],
               colors: [],
+              attribute_values: [],
               sort: "relevance",
             },
             initialSettings: null,

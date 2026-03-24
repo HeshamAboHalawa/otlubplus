@@ -276,6 +276,7 @@ export type Category = {
   metadata: string | null;
   subcategory_count: number;
   product_count: number;
+  enabled?: boolean;
 };
 
 export type SliderImage = {
@@ -334,6 +335,24 @@ export interface KeywordSearch {
 
 export interface CustomFields {
   [key: string]: string | undefined;
+}
+
+export interface CustomProductSectionField {
+  id: number;
+  uuid: string;
+  title: string;
+  description: string;
+  image: string;
+  sort_order: number;
+}
+
+export interface CustomProductSection {
+  id: number;
+  uuid: string;
+  title: string;
+  description: string;
+  sort_order: number;
+  fields: CustomProductSectionField[];
 }
 
 export interface Product {
@@ -398,6 +417,7 @@ export interface Product {
   };
   variants: ProductVariant[];
   attributes: ProductAttribute[];
+  custom_product_sections: CustomProductSection[];
 }
 
 export interface FavoriteItem {
@@ -830,6 +850,7 @@ export interface Brand {
   slug: string;
   logo: string;
   description?: string;
+  enabled?: boolean;
 }
 
 export type Banner = {
@@ -881,6 +902,8 @@ export interface Store {
   address: string;
   latitude: string;
   longitude: string;
+  lat?: number;
+  lng?: number;
   distance: string | number;
   timing: string;
   logo: string;
@@ -1350,4 +1373,26 @@ export interface OrderCheckoutResponse {
   payment_response?: {
     link: string;
   };
+}
+
+export interface SidebarFilters {
+  categories_count: number;
+  brands_count: number;
+  attributes_count: number;
+  categories: Category[];
+  brands: Brand[];
+  attributes: FilterAttribute[];
+}
+
+export interface FilterAttribute {
+  title: string;
+  slug: string;
+  values: FilterAttributeValue[];
+}
+
+export interface FilterAttributeValue {
+  id: number;
+  title: string;
+  swatche_value: string;
+  enabled: boolean;
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Image } from "@heroui/react";
+import { LayoutGrid } from "lucide-react";
 
 interface Category {
   id: number;
@@ -19,6 +20,8 @@ interface TabButtonProps {
   isSelected: boolean;
   isLoading?: boolean;
   onClick?: () => void;
+  staticIcon?: React.ReactNode;
+  size?: "sm" | "lg";
 }
 
 const TabButton: React.FC<TabButtonProps> = ({
@@ -28,6 +31,8 @@ const TabButton: React.FC<TabButtonProps> = ({
   isSelected,
   isLoading = false,
   onClick,
+  staticIcon,
+  size = "sm",
 }) => {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -41,7 +46,7 @@ const TabButton: React.FC<TabButtonProps> = ({
           onClick?.();
         }
       },
-      { threshold: 1 }
+      { threshold: 1 },
     );
 
     observer.observe(buttonRef.current);
@@ -52,14 +57,21 @@ const TabButton: React.FC<TabButtonProps> = ({
     isSelected && category?.active_icon
       ? category.active_icon
       : category?.icon || category?.image;
+
+  const isLarge = size === "lg";
+
   return (
     <button
       ref={buttonRef}
       onClick={onClick}
       disabled={isLoading}
       className={`
-        flex flex-col items-center justify-center gap-1
-        px-1 py-2 sm:min-w-[72px] min-w-[50px]
+        flex flex-col items-center justify-center gap-2
+        ${
+          isLarge
+            ? "px-1 py-2 sm:min-w-[80px] lg:min-w-[110px] lg:px-4 lg:py-3"
+            : "px-1 py-2 sm:min-w-[72px] min-w-[50px]"
+        }
         border-b-2 transition-all duration-200  hover:border-primary hover:bg-transparent
         ${
           isSelected
@@ -76,27 +88,60 @@ const TabButton: React.FC<TabButtonProps> = ({
       {/* Icon */}
       <div
         className={`
-            flex items-center justify-center
-            w-10 h-10 md:w-12 md:h-12  rounded-sm
-            ${isSelected ? "bg-primary/10" : "bg-default-100"}
+            flex items-center justify-center rounded-lg
+            ${
+              isLarge
+                ? "w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16"
+                : "w-10 h-10 md:w-12 md:h-12"
+            }
+            ${
+              isSelected
+                ? "bg-primary/10 dark:bg-transparent"
+                : "bg-default-100 dark:bg-transparent"
+            }
           `}
       >
-        <Image
-          src={iconUrl || undefined}
-          alt={title}
-          loading="eager"
-          radius="none"
-          className={`
-              w-6 h-6 md:w-8 md:h-8 object-contain
-              ${!isSelected ? "dark:invert dark:brightness-200" : ""}
-            `}
-        />
+        {iconUrl ? (
+          <Image
+            src={iconUrl}
+            alt={title}
+            loading="eager"
+            radius="none"
+            className={`
+                object-contain
+                ${
+                  isLarge
+                    ? "w-6 h-6 md:w-9 md:h-9 lg:w-11 lg:h-11"
+                    : "w-6 h-6 md:w-8 md:h-8"
+                }
+                ${!isSelected ? "dark:invert dark:brightness-200" : ""}
+              `}
+          />
+        ) : (
+          staticIcon || (
+            <LayoutGrid
+              className={`
+                ${
+                  isLarge
+                    ? "w-6 h-6 md:w-9 md:h-9 lg:w-11 lg:h-11"
+                    : "w-6 h-6 md:w-8 md:h-8"
+                }
+                ${isSelected ? "text-primary" : "text-default-400"}
+              `}
+            />
+          )
+        )}
       </div>
 
       {/* Title */}
       <span
         className={`
-          text-xxs sm:text-xs text-center leading-tight
+          text-xxs sm:text-xs text-center leading-tight whitespace-normal break-words
+          ${
+            isLarge
+              ? "lg:text-sm max-w-[80px] sm:max-w-[100px] lg:max-w-[120px]"
+              : "max-w-[80px] sm:max-w-[100px]"
+          }
           ${isSelected ? "font-semibold text-primary" : "font-medium"}
         `}
       >

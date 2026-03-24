@@ -26,6 +26,7 @@ import {
   SellerFeedbackItem,
   SellerReview,
   Settings,
+  SidebarFilters,
   Store,
   Transaction,
   userData,
@@ -498,6 +499,50 @@ export const getWalletTransactions = async (
   }
 };
 
+export const getNotifications = async (
+  params: {
+    page?: number;
+    per_page?: number;
+    access_token?: string | null;
+  } = {},
+): Promise<ApiResponse<any>> => {
+  try {
+    const { access_token, ...queryParams } = params;
+    const response = await api.get("/user/notifications", {
+      headers: access_token
+        ? { Authorization: `Bearer ${access_token}` }
+        : undefined,
+      params: queryParams,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    return fallbackApiRes;
+  }
+};
+
+export const markNotificationRead = async (
+  id: string,
+): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.post(`/user/notifications/${id}/read`, { id });
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    return fallbackApiRes;
+  }
+};
+
+export const markAllNotificationsRead = async (): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.post("/user/notifications/mark-all-read");
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    return fallbackApiRes;
+  }
+};
+
 // Brands
 export const getBrands = async (
   params: {
@@ -541,6 +586,21 @@ export const getSpecificStore = async (
 ): Promise<ApiResponse<Store>> => {
   try {
     const response = await api.get(`/stores/${slug}`);
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    return fallbackApiRes;
+  }
+};
+
+export const getStoresByMap = async (params: {
+  ne_lat: number;
+  ne_lng: number;
+  sw_lat: number;
+  sw_lng: number;
+}): Promise<ApiResponse<{ count: number; stores: Store[] }>> => {
+  try {
+    const response = await api.post("/stores/map", params);
     return response.data;
   } catch (error) {
     console.error("API error:", error);
@@ -608,9 +668,9 @@ export const getProducts = async (
     categories?: string;
     brands?: string;
     search?: string;
-    sort?: string;
     store?: string;
     include_child_categories?: number;
+    attribute_values?: string;
   } = {},
 ): Promise<PaginatedResponse<Product[], { keywords: string[] }>> => {
   try {
@@ -627,6 +687,34 @@ export const getProducts = async (
         keywords: [],
       },
     } as PaginatedResponse<Product[], { keywords: string[] }>;
+  }
+};
+
+export const getSidebarFilters = async (params: {
+  latitude: string | number;
+  longitude: string | number;
+  attribute_values?: string;
+  categories?: string;
+  brands?: string;
+  type?: string;
+  value?: string;
+  access_token?: string;
+}): Promise<ApiResponse<SidebarFilters>> => {
+  try {
+    const { access_token, ...rest } = params;
+    const response = await api.get<ApiResponse<SidebarFilters>>(
+      "/products/sidebar-filters",
+      {
+        params: rest,
+        headers: access_token
+          ? { Authorization: `Bearer ${access_token}` }
+          : undefined,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    return fallbackApiRes;
   }
 };
 
@@ -858,6 +946,7 @@ export const getSectionBySlug = async (
     colors?: string;
     sort?: string;
     search?: string;
+    attribute_values?: string;
   } = {},
 ): Promise<PaginatedResponse<Product[]>> => {
   try {

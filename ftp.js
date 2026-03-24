@@ -19,9 +19,9 @@ const rootPath = process.cwd();
 const SSR_EXCLUDE_FOLDERS = [".next", "node_modules", ".github", ".git"];
 
 const config = {
-  host: "******",
-  user: "*****",
-  password: "*******",
+  host: "*******",
+  user: "*******",
+  password: "********",
   port: 21,
   localRoot: __dirname + "/build",
   remoteRoot: "/",

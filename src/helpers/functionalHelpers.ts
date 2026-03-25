@@ -384,9 +384,9 @@ export const handleCheckout = async (
         );
       }
 
-      const paymentLink = response?.data?.payment_response?.link || "";
+      const paymentLink = response?.data?.payment_response?.authorization_url || response?.data?.payment_response?.link || "";
 
-      if (payment_type === "flutterwavePayment") {
+      if (payment_type === "fawaterakPayment") {
         if (isValidUrl(paymentLink)) {
           resetCheckOutState();
           window.location.href = paymentLink;
@@ -394,13 +394,13 @@ export const handleCheckout = async (
           return { success: true, data: null, message: "Redirected" };
         } else {
           addToast({
-            title: i18n.t("checkout.flutterwave_link_invalid"),
+            title: i18n.t(`checkout.fawaterakPayment_link_invalid`) || i18n.t("checkout.payment_link_invalid"),
             description:
-              i18n.t("checkout.flutterwave_link_error_message") ||
+              i18n.t(`checkout.fawaterakPayment_link_error_message`) ||
               "Payment link is invalid or missing. Please try again.",
             color: "danger",
           });
-          console.error("Invalid Flutterwave payment link:", paymentLink);
+          console.error(`Invalid fawaterakPayment link:`, paymentLink);
           return response; // stop here if invalid
         }
       }

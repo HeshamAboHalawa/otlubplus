@@ -189,7 +189,6 @@
       "title": "आइटम हटाएं"
     }
   },
-
   "cart_title": "कार्ट",
   "cart_updated_description": "आपकी कार्ट सफलतापूर्वक अपडेट हो गई है।",
   "cart_updated_title": "कार्ट अपडेट की गई",
@@ -266,7 +265,10 @@
     "attachmentsRequired": {
       "title": "अटैचमेंट आवश्यक हैं",
       "description": "कृपया इन उत्पादों के लिए आवश्यक अटैचमेंट अपलोड करें: {{products}}"
-    }
+    },
+    "fawaterakPayment_link_invalid": "अमान्य फ़वटेराक भुगतान लिंक",
+    "payment_link_invalid": "अमान्य भुगतान लिंक",
+    "fawaterakPayment_link_error_message": "फ़वटेराक भुगतान लिंक अमान्य या अनुपलब्ध है। कृपया पुनः प्रयास करें।"
   },
   "general": {
     "error": {
@@ -994,7 +996,6 @@
       "personalInfo": "व्यक्तिगत जानकारी",
       "requiredDocs": "आवश्यक दस्तावेज़",
       "businessAddress": "व्यवसाय का पता",
-
       "form": {
         "sellerName": "विक्रेता का नाम",
         "mobile": "मोबाइल नंबर",
@@ -1010,7 +1011,6 @@
         "latitude": "अक्षांश",
         "longitude": "देशांतर"
       },
-
       "placeholder": {
         "sellerName": "अपना पूरा नाम दर्ज करें",
         "mobile": "अपना मोबाइल नंबर दर्ज करें",
@@ -1024,20 +1024,17 @@
         "latitude": "जैसे 23.241999",
         "longitude": "जैसे 69.666881"
       },
-
       "docs": {
         "businessLicense": "व्यवसाय लाइसेंस",
         "articlesOfIncorporation": "संविधान के अनुच्छेद",
         "nationalId": "राष्ट्रीय पहचान पत्र",
         "authorizedSignature": "अधिकृत हस्ताक्षर"
       },
-
       "button": {
         "chooseFile": "फ़ाइल चुनें",
         "register": "पंजीकरण करें",
         "reset": "रीसेट करें"
       },
-
       "toast": {
         "invalidFileTitle": "अमान्य फ़ाइल प्रकार",
         "invalidFileDescription": "केवल JPEG, PNG, JPG या WEBP फ़ाइलें ही अनुमत हैं।",
@@ -1053,7 +1050,6 @@
         "invalidFileTypeTitle": "अमान्य फ़ाइल प्रकार",
         "invalidFileTypeDesc": "केवल JPEG, PNG, JPG या WEBP अनुमत है। अमान्य: {{types}}"
       },
-
       "error": {
         "required": "आवश्यक",
         "passwordMismatch": "पासवर्ड मेल नहीं खाते",
@@ -1689,7 +1685,6 @@
   "wishlist_modal_title": "नई विशलिस्ट",
   "wishlist_selectTitle": "एक विशलिस्ट चुनें",
   "wishlist_selectDescription": "उत्पाद देखने के लिए बाएँ से कोई विशलिस्ट चुनें।",
-
   "withdraw": "निकासी",
   "withdraw_funds": "धन निकासी",
   "withdrawal_request_failed": "निकासी अनुरोध विफल।",
@@ -1754,14 +1749,11 @@
   "sellerReviews": {
     "title": "{{count}} समीक्षाएँ",
     "subtitle": "{{count}} में से {{total}} समीक्षाएँ",
-
     "sortAriaLabel": "समीक्षाओं को क्रमबद्ध करें",
-
     "sort": {
       "latest": "नवीनतम",
       "oldest": "पुरानी"
     },
-
     "error": "समीक्षाएँ लोड करने में विफल। कृपया पुनः प्रयास करें।",
     "noData": "कोई समीक्षा नहीं मिली।"
   },
@@ -1782,7 +1774,6 @@
     "empty": "कोई हटाए गए आइटम नहीं",
     "close": "बंद करें"
   },
-
   "failedItems": {
     "singleTitle": "आइटम कार्ट में नहीं जोड़ा जा सका",
     "multipleTitle": "कुछ आइटम कार्ट में नहीं जोड़े जा सके",

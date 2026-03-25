@@ -265,7 +265,10 @@
     "attachmentsRequired": {
       "title": "Attachments Required",
       "description": "Please upload required attachments for: {{products}}"
-    }
+    },
+    "fawaterakPayment_link_invalid": "Invalid Fawaterak Payment Link",
+    "payment_link_invalid": "Invalid Payment Link",
+    "fawaterakPayment_link_error_message": "The Fawaterak payment link returned from the server is invalid or missing. Please try again."
   },
   "general": {
     "error": {
@@ -993,7 +996,6 @@
       "personalInfo": "Personal Information",
       "requiredDocs": "Required Documents",
       "businessAddress": "Business Address",
-
       "form": {
         "sellerName": "Seller Name",
         "mobile": "Mobile Number",
@@ -1009,7 +1011,6 @@
         "latitude": "Latitude",
         "longitude": "Longitude"
       },
-
       "placeholder": {
         "sellerName": "Enter your full name",
         "mobile": "Enter your mobile number",
@@ -1023,20 +1024,17 @@
         "latitude": "e.g. 23.241999",
         "longitude": "e.g. 69.666881"
       },
-
       "docs": {
         "businessLicense": "Business License",
         "articlesOfIncorporation": "Articles of Incorporation",
         "nationalId": "National ID Card",
         "authorizedSignature": "Authorized Signature"
       },
-
       "button": {
         "chooseFile": "Choose File",
         "register": "Register",
         "reset": "Reset"
       },
-
       "toast": {
         "invalidFileTitle": "Invalid File Type",
         "invalidFileDescription": "Only JPEG, PNG, JPG, or WEBP files are allowed.",
@@ -1052,7 +1050,6 @@
         "invalidFileTypeTitle": "Invalid File Type",
         "invalidFileTypeDesc": "Only JPEG, PNG, JPG, or WEBP allowed. Invalid: {{types}}"
       },
-
       "error": {
         "required": "Required",
         "passwordMismatch": "Passwords must match",
@@ -1752,14 +1749,11 @@
   "sellerReviews": {
     "title": "{{count}} Reviews",
     "subtitle": "{{count}} of {{total}} reviews",
-
     "sortAriaLabel": "Sort reviews",
-
     "sort": {
       "latest": "Latest",
       "oldest": "Oldest"
     },
-
     "error": "Failed to load reviews. Please try again.",
     "noData": "No reviews found."
   },
@@ -1778,7 +1772,6 @@
     "empty": "No removed items",
     "close": "Close"
   },
-
   "failedItems": {
     "singleTitle": "Unable to add item to cart",
     "multipleTitle": "Unable to add some items to cart",
@@ -1789,7 +1782,6 @@
     "empty": "No failed items",
     "okay": "Okay"
   },
-
   "handlingCharges": "Handling Charges",
   "dropOffFee": "Drop-off Fee",
   "promoDiscountApplied": "Promo Discount Applied",

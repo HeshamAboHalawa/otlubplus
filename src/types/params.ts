@@ -74,8 +74,9 @@ export interface PrepareWalletRechargeResponse {
     };
     offer_id: string | null;
     receipt: string;
-    status: string; // e.g., "created"
-    link: string;
+    status?: string; // e.g., "created"
+    link?: string;
+    authorization_url?: string;
   };
 }
 

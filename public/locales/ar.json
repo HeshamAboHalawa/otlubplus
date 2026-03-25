@@ -265,7 +265,10 @@
     "attachmentsRequired": {
       "title": "المرفقات مطلوبة",
       "description": "يرجى تحميل المرفقات المطلوبة لـ: {{products}}"
-    }
+    },
+    "fawaterakPayment_link_invalid": "رابط دفع Fawaterak غير صالح",
+    "payment_link_invalid": "رابط الدفع غير صالح",
+    "fawaterakPayment_link_error_message": "رابط الدفع الخاص بـ Fawaterak غير صالح أو مفقود. يرجى المحاولة مرة أخرى."
   },
   "general": {
     "error": {
@@ -993,7 +996,6 @@
       "personalInfo": "المعلومات الشخصية",
       "requiredDocs": "المستندات المطلوبة",
       "businessAddress": "عنوان العمل",
-
       "form": {
         "sellerName": "اسم البائع",
         "mobile": "رقم الجوال",
@@ -1009,7 +1011,6 @@
         "latitude": "خط العرض",
         "longitude": "خط الطول"
       },
-
       "placeholder": {
         "sellerName": "أدخل اسمك الكامل",
         "mobile": "أدخل رقم جوالك",
@@ -1023,20 +1024,17 @@
         "latitude": "مثال: 23.241999",
         "longitude": "مثال: 69.666881"
       },
-
       "docs": {
         "businessLicense": "رخصة العمل",
         "articlesOfIncorporation": "عقد التأسيس",
         "nationalId": "بطاقة الهوية الوطنية",
         "authorizedSignature": "التوقيع المعتمد"
       },
-
       "button": {
         "chooseFile": "اختر ملفًا",
         "register": "تسجيل",
         "reset": "إعادة تعيين"
       },
-
       "toast": {
         "invalidFileTitle": "نوع الملف غير صالح",
         "invalidFileDescription": "يُسمح فقط بملفات JPEG أو PNG أو JPG أو WEBP.",
@@ -1052,7 +1050,6 @@
         "invalidFileTypeTitle": "نوع الملف غير صالح",
         "invalidFileTypeDesc": "يُسمح فقط بملفات JPEG أو PNG أو JPG أو WEBP. غير صالح: {{types}}"
       },
-
       "error": {
         "required": "مطلوب",
         "passwordMismatch": "كلمات المرور غير متطابقة",
@@ -1752,14 +1749,11 @@
   "sellerReviews": {
     "title": "{{count}} مراجعات",
     "subtitle": "{{count}} من أصل {{total}} مراجعات",
-
     "sortAriaLabel": "فرز المراجعات",
-
     "sort": {
       "latest": "الأحدث",
       "oldest": "الأقدم"
     },
-
     "error": "فشل تحميل المراجعات. يرجى المحاولة مرة أخرى.",
     "noData": "لا توجد مراجعات."
   },
@@ -1778,7 +1772,6 @@
     "empty": "لا توجد عناصر محذوفة",
     "close": "إغلاق"
   },
-
   "failedItems": {
     "singleTitle": "تعذرت إضافة العنصر إلى السلة",
     "multipleTitle": "تعذرت إضافة بعض العناصر إلى السلة",

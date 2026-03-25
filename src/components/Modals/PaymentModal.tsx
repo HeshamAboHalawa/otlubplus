@@ -12,11 +12,7 @@ import PaymentMethods from "../PaymentMethods";
 import { handleCheckout } from "@/helpers/functionalHelpers";
 import { useRouter } from "next/router";
 import { updateCartData } from "@/helpers/updators";
-import RazorPay from "../PaymentGateway/RazorPay";
-import Stripe from "../PaymentGateway/Stripe";
 import { useTranslation } from "react-i18next";
-import PayStack from "../PaymentGateway/Paystack";
-import FlutterwavePayment from "../PaymentGateway/FlutterwavePayment";
 import { useDispatch } from "react-redux";
 import { setPromoCode } from "@/lib/redux/slices/checkoutSlice";
 
@@ -40,13 +36,16 @@ const PaymentModal: FC<PaymentModalProps> = ({ open, onOpenChange }) => {
       });
     }
 
-    if (selectedPayment === "cod") {
+    if (selectedPayment === "cod" || selectedPayment === "fawaterakPayment") {
       setIsLoading(true);
       try {
-        const res = await handleCheckout("cod", {});
+        const res = await handleCheckout(selectedPayment, {});
         if (res?.success) {
           onOpenChange(false);
-          await router.push("/my-account/orders");
+          // Only redirect for cod directly here, gateway payments handle their own redirects via handleCheckout
+          if (selectedPayment === "cod") {
+            await router.push("/my-account/orders");
+          }
           dispatch(setPromoCode(""));
         }
       } finally {
@@ -92,7 +91,8 @@ const PaymentModal: FC<PaymentModalProps> = ({ open, onOpenChange }) => {
 
           <ModalFooter>
             {(selectedPayment === "cod" ||
-              selectedPayment === "directBankTransfer") && (
+              selectedPayment === "directBankTransfer" ||
+              selectedPayment === "fawaterakPayment") && (
               <Button
                 color="primary"
                 onPress={handleContinue}
@@ -101,43 +101,6 @@ const PaymentModal: FC<PaymentModalProps> = ({ open, onOpenChange }) => {
               >
                 {t("continue")}
               </Button>
-            )}
-
-            {selectedPayment === "stripePayment" && (
-              <Stripe
-                onSuccess={handlePaymentSuccess}
-                onError={handleError}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-              />
-            )}
-
-            {selectedPayment === "razorpayPayment" && (
-              <RazorPay
-                onSuccess={handlePaymentSuccess}
-                onError={handleError}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-              />
-            )}
-
-            {selectedPayment === "paystackPayment" && (
-              <PayStack
-                onSuccess={handlePaymentSuccess}
-                onError={handleError}
-                setIsLoading={setIsLoading}
-                isLoading={isLoading}
-                usageType="order"
-              />
-            )}
-
-            {selectedPayment === "flutterwavePayment" && (
-              <FlutterwavePayment
-                onSuccess={handlePaymentSuccess}
-                onError={handleError}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-              />
             )}
           </ModalFooter>
         </ModalContent>

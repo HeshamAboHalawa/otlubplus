@@ -1372,7 +1372,8 @@ export interface OrderCheckoutResponse {
   created_at: string;
   updated_at: string;
   payment_response?: {
-    link: string;
+    link?: string;
+    authorization_url?: string;
   };
 }
 

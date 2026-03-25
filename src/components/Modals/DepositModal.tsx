@@ -16,9 +16,6 @@ import PaymentMethods from "../PaymentMethods";
 import { prepareWalletRecharge } from "@/routes/api";
 import { updateUserDataInRedux } from "@/helpers/functionalHelpers";
 import { useTranslation } from "react-i18next";
-import RazorPay from "../PaymentGateway/RazorPay";
-import Stripe from "../PaymentGateway/Stripe";
-import PayStack from "../PaymentGateway/Paystack";
 import { isValidUrl } from "@/helpers/validator";
 
 const DepositModal = () => {
@@ -124,21 +121,21 @@ const DepositModal = () => {
         setWalletOrderData(res.data);
         setShowPaymentGateway(true);
 
-        if (selectedPayment === "flutterwavePayment") {
-          const paymentLink = res?.data?.payment_response?.link;
+        if (selectedPayment === "fawaterakPayment") {
+          const paymentLink = res?.data?.payment_response?.authorization_url || res?.data?.payment_response?.link;
 
           // ✅ Validate URL before redirecting
           if (paymentLink && isValidUrl(paymentLink)) {
             window.location.href = paymentLink;
           } else {
             console.error(
-              "Invalid or missing Flutterwave payment link:",
+              `Invalid or missing fawaterakPayment link:`,
               paymentLink
             );
             addToast({
-              title: t("checkout.flutterwave_link_invalid"),
+              title: t(`checkout.fawaterakPayment_link_invalid`) || t("checkout.payment_link_invalid"),
               description:
-                t("checkout.flutterwave_link_error_message") ||
+                t(`checkout.fawaterakPayment_link_error_message`) ||
                 "Payment link is invalid or missing. Please try again.",
               color: "danger",
             });
@@ -146,25 +143,7 @@ const DepositModal = () => {
           }
         }
 
-        // ✅ Automatically trigger payment gateway after short delay
-        setTimeout(() => {
-          if (
-            selectedPayment === "razorpayPayment" &&
-            razorpayTriggerRef.current
-          ) {
-            razorpayTriggerRef.current();
-          } else if (
-            selectedPayment === "stripePayment" &&
-            stripeTriggerRef.current
-          ) {
-            stripeTriggerRef.current();
-          } else if (
-            selectedPayment === "paystackPayment" &&
-            paystackTriggerRef.current
-          ) {
-            paystackTriggerRef.current();
-          }
-        }, 100);
+        // Removed legacy auto-trigger for Stripe, Razorpay, Paystack
       } else {
         addToast({
           title: t("deposit.error.title"),
@@ -211,26 +190,7 @@ const DepositModal = () => {
     setWalletOrderData(null);
   };
 
-  // Add this useEffect in DepositModal component
-  useEffect(() => {
-    if (showPaymentGateway && walletOrderData) {
-      const timer = setTimeout(() => {
-        if (
-          selectedPayment === "razorpayPayment" &&
-          razorpayTriggerRef.current
-        ) {
-          razorpayTriggerRef.current();
-        } else if (
-          selectedPayment === "stripePayment" &&
-          stripeTriggerRef.current
-        ) {
-          stripeTriggerRef.current();
-        }
-      }, 300); // Increase delay slightly
-
-      return () => clearTimeout(timer);
-    }
-  }, [showPaymentGateway, walletOrderData, selectedPayment]);
+  // Removed legacy useEffect for triggering payment gateways
 
   return (
     <>
@@ -335,42 +295,7 @@ const DepositModal = () => {
           </ModalBody>
           <ModalFooter>
             {showPaymentGateway && walletOrderData ? (
-              <>
-                {selectedPayment === "razorpayPayment" && (
-                  <RazorPay
-                    usageType="wallet"
-                    walletOrderData={walletOrderData}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                    isLoading={isLoading}
-                    setIsLoading={setIsLoading}
-                    triggerRef={razorpayTriggerRef}
-                  />
-                )}
-                {selectedPayment === "stripePayment" && (
-                  <Stripe
-                    usageType="wallet"
-                    walletOrderData={walletOrderData}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                    isLoading={isLoading}
-                    setIsLoading={setIsLoading}
-                    triggerRef={stripeTriggerRef}
-                  />
-                )}
-
-                {selectedPayment === "paystackPayment" && (
-                  <PayStack
-                    usageType="wallet"
-                    walletOrderData={walletOrderData}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                    isLoading={isLoading}
-                    setIsLoading={setIsLoading}
-                    triggerRef={paystackTriggerRef}
-                  />
-                )}
-              </>
+              <></>
             ) : (
               <Button
                 type="submit"

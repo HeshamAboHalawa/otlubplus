@@ -146,6 +146,7 @@ export interface PaymentSettings {
   bankExtraNote: string;
 
   flutterwavePayment: boolean;
+  fawaterakPayment: boolean;
   flutterwavePaymentMode: "test" | "live";
   flutterwavePublicKey: string;
   flutterwaveCurrencyCode: string;

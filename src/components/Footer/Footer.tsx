@@ -246,12 +246,12 @@ const Footer: FC = () => {
             <div className="text-xs text-slate-400">
               <span>{t("footer.bottom_bar.powered_by")} </span>
               <a
-                href="https://infinitietech.com/"
+                href="https://knzit.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary-400 hover:text-primary-300 font-medium"
               >
-                Infinitietech
+                Knzit
               </a>
             </div>
           </div>
@@ -479,12 +479,12 @@ const Footer: FC = () => {
             <div className="flex items-center justify-center sm:justify-end gap-2 text-sm text-slate-400">
               <span>{t("footer.bottom_bar.powered_by")}</span>
               <a
-                href="https://infinitietech.com/"
+                href="https://knzit.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary-400 hover:text-primary-300 font-semibold transition-transform hover:scale-105"
               >
-                Infinitietech
+                Knzit
               </a>
             </div>
           </div>

@@ -72,34 +72,27 @@ const TabButton: React.FC<TabButtonProps> = ({
             ? "px-1 py-2 sm:min-w-[80px] lg:min-w-[110px] lg:px-4 lg:py-3"
             : "px-1 py-2 sm:min-w-[72px] min-w-[50px]"
         }
-        border-b-2 transition-all duration-200  hover:border-primary hover:bg-transparent
-        ${
-          isSelected
-            ? "border-primary text-primary"
-            : "border-transparent text-default-600 hover:text-default-900"
-        }
+        border-b-2 transition-all duration-200
+        border-primary text-primary
+        hover:border-primary hover:bg-transparent
         ${
           isLoading
             ? "opacity-50 cursor-not-allowed"
-            : "cursor-pointer hover:bg-default-100/50"
+            : "cursor-pointer hover:bg-primary/5"
         }
       `}
     >
       {/* Icon */}
       <div
         className={`
-            flex items-center justify-center rounded-lg
-            ${
-              isLarge
-                ? "w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16"
-                : "w-10 h-10 md:w-12 md:h-12"
-            }
-            ${
-              isSelected
-                ? "bg-primary/10 dark:bg-transparent"
-                : "bg-default-100 dark:bg-transparent"
-            }
-          `}
+          flex items-center justify-center rounded-lg
+          ${
+            isLarge
+              ? "w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16"
+              : "w-10 h-10 md:w-12 md:h-12"
+          }
+          bg-primary/10 dark:bg-transparent
+        `}
       >
         {iconUrl ? (
           <Image
@@ -108,25 +101,24 @@ const TabButton: React.FC<TabButtonProps> = ({
             loading="eager"
             radius="none"
             className={`
-                object-contain
-                ${
-                  isLarge
-                    ? "w-6 h-6 md:w-9 md:h-9 lg:w-11 lg:h-11"
-                    : "w-6 h-6 md:w-8 md:h-8"
-                }
-                ${!isSelected ? "dark:invert dark:brightness-200" : ""}
-              `}
+              object-contain
+              ${
+                isLarge
+                  ? "w-6 h-6 md:w-9 md:h-9 lg:w-11 lg:h-11"
+                  : "w-6 h-6 md:w-8 md:h-8"
+              }
+            `}
           />
         ) : (
           staticIcon || (
             <LayoutGrid
               className={`
+                text-primary
                 ${
                   isLarge
                     ? "w-6 h-6 md:w-9 md:h-9 lg:w-11 lg:h-11"
                     : "w-6 h-6 md:w-8 md:h-8"
                 }
-                ${isSelected ? "text-primary" : "text-default-400"}
               `}
             />
           )
@@ -137,12 +129,12 @@ const TabButton: React.FC<TabButtonProps> = ({
       <span
         className={`
           text-xxs sm:text-xs text-center leading-tight whitespace-normal break-words
+          font-semibold text-primary
           ${
             isLarge
               ? "lg:text-sm max-w-[80px] sm:max-w-[100px] lg:max-w-[120px]"
               : "max-w-[80px] sm:max-w-[100px]"
           }
-          ${isSelected ? "font-semibold text-primary" : "font-medium"}
         `}
       >
         {title}
@@ -150,7 +142,7 @@ const TabButton: React.FC<TabButtonProps> = ({
 
       {/* Loader */}
       {isLoading && (
-        <div className="mt-1 animate-spin rounded-sm h-4 w-4 border-b-2 border-secondary" />
+        <div className="mt-1 animate-spin rounded-sm h-4 w-4 border-b-2 border-primary" />
       )}
     </button>
   );

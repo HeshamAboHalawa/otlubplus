@@ -1,13 +1,13 @@
+import CustomImage from "@/components/custom/CustomImage";
 import {
   Card,
   CardBody,
   Chip,
-  Image,
   Modal,
   ModalBody,
   ModalContent,
   ModalHeader,
-  Tooltip,
+  Tooltip
 } from "@heroui/react";
 import {
   ExternalLink,
@@ -121,7 +121,7 @@ const FilePreview: FC<FilePreviewProps> = ({ attachments }) => {
                   <div className="flex items-center gap-1.5">
                     {fileType === "image" ? (
                       <div className="relative w-10 h-10 rounded overflow-hidden shrink-0">
-                        <Image
+                        <CustomImage
                           removeWrapper
                           radius="none"
                           src={url}

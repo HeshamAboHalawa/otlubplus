@@ -1,3 +1,4 @@
+import CustomImage from "@/components/custom/CustomImage";
 import {
   useState,
   useEffect,
@@ -5,15 +6,14 @@ import {
   useMemo,
   FC,
   ChangeEvent,
-} from "react";
+  } from "react";
 import {
   Button,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Input,
-  Image,
+  Input
 } from "@heroui/react";
 import { ChevronDown, Search, Smartphone } from "lucide-react";
 import CountryList from "country-list-with-dial-code-and-flag";
@@ -264,7 +264,7 @@ const PhoneInput: FC<PhoneInputProps> = ({
                 >
                   {state.selectedCountry?.dialCode ? (
                     <div className="flex items-center gap-2">
-                      <Image
+                      <CustomImage
                         src={getFlagEmoji(state.selectedCountry.code)}
                         alt={`${state.selectedCountry.code} flag`}
                         className="h-5 w-6 rounded-sm"
@@ -342,7 +342,7 @@ const PhoneInput: FC<PhoneInputProps> = ({
                       className="p-2 my-1"
                     >
                       <div className="flex items-center gap-2">
-                        <Image
+                        <CustomImage
                           src={getFlagEmoji(item.code)}
                           alt={`${item.code} flag`}
                           className="h-7 w-7 rounded-lg"

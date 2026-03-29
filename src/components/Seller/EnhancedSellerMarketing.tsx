@@ -1,3 +1,4 @@
+import CustomImage from "@/components/custom/CustomImage";
 import {
   CheckCircle,
   Users,
@@ -15,9 +16,10 @@ import {
   Target,
   Award,
   Sparkles,
-} from "lucide-react";
+  } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { Button, Image } from "@heroui/react";
+import { Button
+} from "@heroui/react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
@@ -246,7 +248,7 @@ export default function EnhancedSellerMarketing() {
             <div className="grid grid-cols-2 gap-3 pt-4">
               {/* IMG 1 — slightly up */}
               <div className="bg-linear-to-br from-gray-200 to-gray-300 rounded-lg aspect-square flex items-center justify-center overflow-hidden -mt-4">
-                <Image
+                <CustomImage
                   src="/images/Hyperlocal-2.jpg"
                   alt="About Image 1"
                   className="w-full h-full object-cover"
@@ -256,7 +258,7 @@ export default function EnhancedSellerMarketing() {
 
               {/* IMG 2 — slightly down */}
               <div className="bg-linear-to-br from-gray-200 to-gray-300 rounded-lg aspect-square flex items-center justify-center overflow-hidden mt-4">
-                <Image
+                <CustomImage
                   src="/images/Hyperlocal-1.jpg"
                   alt="About Image 2"
                   className="w-full h-full object-cover"

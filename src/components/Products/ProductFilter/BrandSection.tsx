@@ -1,11 +1,11 @@
+import CustomImage from "@/components/custom/CustomImage";
 import {
   Accordion,
   AccordionItem,
   Listbox,
   ListboxItem,
-  Image,
   Badge,
-  ScrollShadow,
+  ScrollShadow
 } from "@heroui/react";
 import { ChevronLeft } from "lucide-react";
 import { FC } from "react";
@@ -105,7 +105,7 @@ const BrandSection: FC<BrandSectionProps> = ({
                       base: `px-1 ${brand.enabled === false ? "opacity-50" : ""}`,
                     }}
                     startContent={
-                      <Image
+                      <CustomImage
                         loading="lazy"
                         src={brand.logo}
                         width={20}

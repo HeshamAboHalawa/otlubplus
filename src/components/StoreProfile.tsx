@@ -1,5 +1,9 @@
+import CustomImage from "@/components/custom/CustomImage";
 import React, { useState } from "react";
-import { Avatar, Chip, Image } from "@heroui/react";
+import {
+  Avatar,
+  Chip
+} from "@heroui/react";
 import { MapPin, Phone, Mail, Clock, Star, Package } from "lucide-react";
 import { Store } from "@/types/ApiResponse";
 import { useTranslation } from "react-i18next";
@@ -143,7 +147,7 @@ const StoreProfile: React.FC<StoreProfileProps> = ({ store }) => {
           className="absolute inset-0 cursor-pointer"
           onClick={() => openLightbox("banner")}
         >
-          <Image
+          <CustomImage
             src={store.banner || "/images/roof.png"}
             alt={`${store.name} banner`}
             className="w-full h-full object-cover"

@@ -1,12 +1,13 @@
+import CustomImage from "@/components/custom/CustomImage";
 import React from "react";
-import { useTranslation } from "react-i18next";
+import {
+  useTranslation } from "react-i18next";
 import {
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Button,
-  Image,
+  Button
 } from "@heroui/react";
 import { getFlagEmoji } from "@/helpers/getters";
 import { ChevronDown } from "lucide-react";
@@ -54,7 +55,7 @@ const LanguageSwitcher = () => {
       <DropdownTrigger className="w-fit sm:w-4">
         <Button variant="light" className="flex items-center gap-2 p-0">
           <div className="flex gap-1 items-end">
-            <Image
+            <CustomImage
               src={getFlagEmoji(getCurrentLanguage().countryCode)}
               alt={`flag`}
               className="h-4 w-5 rounded-sm sm:hidden"
@@ -83,7 +84,7 @@ const LanguageSwitcher = () => {
             key={language.code}
             className="flex items-center gap-2"
             startContent={
-              <Image
+              <CustomImage
                 src={getFlagEmoji(language.countryCode)}
                 alt={`flag`}
                 className="h-4 w-5 rounded-sm"

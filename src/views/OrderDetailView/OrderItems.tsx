@@ -1,10 +1,18 @@
+import CustomImage from "@/components/custom/CustomImage";
 import OrderItemReviewCard from "@/components/Modals/OrderItemReviewCard";
 import FilePreview from "@/components/FilePreview";
-import { orderStatusColorMap } from "@/config/constants";
+import {
+  orderStatusColorMap } from "@/config/constants";
 import { getOrderStatusBtnConfig } from "@/helpers/getters";
 import { formatString } from "@/helpers/validator";
-import { Order, OrderItem } from "@/types/ApiResponse";
-import { Button, Card, CardBody, CardHeader, Chip, Image } from "@heroui/react";
+import { Order,
+  OrderItem } from "@/types/ApiResponse";
+import { Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip
+} from "@heroui/react";
 import { Package, ShoppingBag, Star, Truck } from "lucide-react";
 import Link from "next/link";
 import React, { FC, useMemo, useState } from "react";
@@ -66,7 +74,7 @@ const OrderItems: FC<OrderItemsProps> = ({
 
     return (
       <>
-        <Image
+        <CustomImage
           src={src}
           alt={alt}
           className="w-16 h-16 sm:w-20 sm:h-20 rounded-md object-cover shrink-0 cursor-pointer"

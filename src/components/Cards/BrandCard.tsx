@@ -1,6 +1,10 @@
-import { useScreenType } from "@/hooks/useScreenType";
+import CustomImage from "@/components/custom/CustomImage";
+import {
+  useScreenType } from "@/hooks/useScreenType";
 import { Brand } from "@/types/ApiResponse";
-import { Card, CardBody, Image } from "@heroui/react";
+import { Card,
+  CardBody
+} from "@heroui/react";
 import Link from "next/link";
 import { FC, memo } from "react";
 
@@ -24,7 +28,7 @@ const BrandCard: FC<BrandCardProps> = ({ brand }) => {
           title={brand.title}
         >
           <CardBody className="flex items-center justify-center p-3 overflow-hidden">
-            <Image
+            <CustomImage
               unselectable="off"
               src={brand.logo}
               alt={brand.title}

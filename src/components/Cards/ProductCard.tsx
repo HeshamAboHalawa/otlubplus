@@ -1,14 +1,16 @@
-import { FC, memo } from "react";
+import CustomImage from "@/components/custom/CustomImage";
+import {
+  FC,
+  memo } from "react";
 import {
   Card,
   CardBody,
   CardFooter,
   Chip,
   Button,
-  Image,
   useDisclosure,
   addToast,
-  Tooltip,
+  Tooltip
 } from "@heroui/react";
 import { Clock, Bookmark, Star, Eye } from "lucide-react";
 import RatingStars from "../RatingStars";
@@ -179,7 +181,7 @@ const ProductCard: FC<ProductCardProps> = ({
                 title={product.title}
                 className="block w-full"
               >
-                <Image
+                <CustomImage
                   alt={product.title ?? t("product_image_alt")}
                   className={`w-full h-28 md:h-32 lg:h-36 hover:scale-105 transition-transform ${
                     product.image_fit === "cover"

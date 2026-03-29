@@ -1,7 +1,11 @@
-import { useScreenType } from "@/hooks/useScreenType";
+import CustomImage from "@/components/custom/CustomImage";
+import {
+  useScreenType } from "@/hooks/useScreenType";
 import { trackCategoryView } from "@/lib/analytics";
 import { Category } from "@/types/ApiResponse";
-import { Card, CardBody, Image } from "@heroui/react";
+import { Card,
+  CardBody
+} from "@heroui/react";
 import Link from "next/link";
 import { FC, memo } from "react";
 
@@ -31,7 +35,7 @@ const CategoryCard: FC<CategoryCardProps> = ({ category }) => {
           }
         >
           <CardBody className="flex items-center justify-center p-3 overflow-hidden">
-            <Image
+            <CustomImage
               src={category.image}
               alt={category.title}
               className="w-full h-full object-contain max-w-full"

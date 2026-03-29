@@ -1,12 +1,20 @@
-import { FC, useEffect } from "react";
+import CustomImage from "@/components/custom/CustomImage";
+import {
+  FC,
+  useEffect } from "react";
 import {
   FaFacebookF,
   FaInstagram,
   FaYoutube,
   FaXTwitter,
-} from "react-icons/fa6";
-import { Phone, Mail, Shield, Package, Leaf } from "lucide-react";
-import { Chip, Image } from "@heroui/react";
+  } from "react-icons/fa6";
+import { Phone,
+  Mail,
+  Shield,
+  Package,
+  Leaf } from "lucide-react";
+import { Chip
+} from "@heroui/react";
 import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -58,7 +66,7 @@ const Footer: FC = () => {
           <div className="text-center space-y-3">
             <div className="w-full flex justify-center">
               <Link href="/" title={t("nav.home")}>
-                <Image
+                <CustomImage
                   src={siteFooterLogo}
                   alt={siteName}
                   radius="none"
@@ -264,7 +272,7 @@ const Footer: FC = () => {
             {/* Company Info */}
             <div className="space-y-6">
               <Link href="/" title={t("nav.home")}>
-                <Image
+                <CustomImage
                   src={siteFooterLogo}
                   alt={siteName}
                   radius="none"

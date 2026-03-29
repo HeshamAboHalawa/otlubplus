@@ -1,4 +1,7 @@
-import { FC, useState } from "react";
+import CustomImage from "@/components/custom/CustomImage";
+import {
+  FC,
+  useState } from "react";
 import {
   Download,
   Package,
@@ -9,7 +12,7 @@ import {
   Truck,
   Star,
   HandCoins,
-} from "lucide-react";
+  } from "lucide-react";
 import {
   Accordion,
   AccordionItem,
@@ -20,9 +23,8 @@ import {
   CardHeader,
   Chip,
   Divider,
-  Image,
   ScrollShadow,
-  useDisclosure,
+  useDisclosure
 } from "@heroui/react";
 import { Order } from "@/types/ApiResponse";
 import { getFormattedDate, getOrderStatusBtnConfig } from "@/helpers/getters";
@@ -199,7 +201,7 @@ const OrderCard: FC<OrderCardProps> = ({ order }) => {
                     >
                       <div className="flex items-center flex-1 min-w-0 space-x-2">
                         {item.product?.image ? (
-                          <Image
+                          <CustomImage
                             loading="lazy"
                             src={item.product.image}
                             alt={item?.product?.name || "Not Available"}

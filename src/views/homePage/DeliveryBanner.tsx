@@ -1,6 +1,11 @@
+import CustomImage from "@/components/custom/CustomImage";
 import React from "react";
-import { useTranslation } from "react-i18next";
-import { Card, CardBody, Button, Image } from "@heroui/react";
+import {
+  useTranslation } from "react-i18next";
+import { Card,
+  CardBody,
+  Button
+} from "@heroui/react";
 import { ShoppingBag, Truck } from "lucide-react";
 import { useRouter } from "next/router";
 
@@ -116,7 +121,7 @@ const DeliveryBanner: React.FC = () => {
                   <div className="absolute inset-0 bg-linear-to-br from-yellow-400/30 to-orange-400/30 rounded-full blur-2xl scale-110" />
 
                   {/* Image */}
-                  <Image
+                  <CustomImage
                     src="/images/delivery-boy-blue.png"
                     alt="Delivery person"
                     radius="lg"

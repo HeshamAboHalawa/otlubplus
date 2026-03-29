@@ -1,7 +1,12 @@
 "use client";
 
-import { FC, useState } from "react";
-import { addToast, Button, Image } from "@heroui/react";
+import CustomImage from "@/components/custom/CustomImage";
+import {
+  FC,
+  useState } from "react";
+import { addToast,
+  Button
+} from "@heroui/react";
 import Link from "next/link";
 import { Trash2, ShoppingCart } from "lucide-react";
 import { getSaveForLaterItems, removeItemFromCart } from "@/routes/api";
@@ -147,7 +152,7 @@ const SaveForLaterItems: FC<{ moreProductsInline: boolean }> = ({
           <SwiperSlide key={item.id}>
             <div className="flex flex-col bg-white dark:bg-default-100 border border-default-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-3">
               <div className="relative w-full flex justify-center">
-                <Image
+                <CustomImage
                   loading="lazy"
                   src={item.product.image}
                   alt={item.variant.title || ""}

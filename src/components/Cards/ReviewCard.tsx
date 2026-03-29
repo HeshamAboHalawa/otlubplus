@@ -1,11 +1,13 @@
-import { FC, useState } from "react";
+import CustomImage from "@/components/custom/CustomImage";
+import {
+  FC,
+  useState } from "react";
 import {
   Card,
   CardHeader,
   CardBody,
   CardFooter,
-  User,
-  Image,
+  User
 } from "@heroui/react";
 import RatingStars from "../RatingStars";
 import { Review } from "@/types/ApiResponse";
@@ -50,7 +52,7 @@ const ReviewCard: FC<ReviewCardProps> = ({ review }) => {
             <div className="flex space-x-2 mt-2" onClick={() => {}}>
               {review.review_images.map((image, idx) => (
                 <div key={idx}>
-                  <Image
+                  <CustomImage
                     key={idx}
                     src={image}
                     loading="lazy"

@@ -1,5 +1,11 @@
+import CustomImage from "@/components/custom/CustomImage";
 import React from "react";
-import { Card, CardBody, Button, Image, useDisclosure } from "@heroui/react";
+import {
+  Card,
+  CardBody,
+  Button,
+  useDisclosure
+} from "@heroui/react";
 import { ArrowRightLeft, Trash2 } from "lucide-react";
 import { WishlistItem, WishTitle } from "@/types/ApiResponse";
 import MoveWishlistModal from "../Modals/MoveWishlistModal";
@@ -46,7 +52,7 @@ const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
           <div className="flex gap-3">
             {/* Product Image */}
             <div className="shrink-0">
-              <Image
+              <CustomImage
                 src={item.product.image}
                 alt={item.product.title}
                 className="w-15 h-15 object-cover rounded-lg bg-default-100"

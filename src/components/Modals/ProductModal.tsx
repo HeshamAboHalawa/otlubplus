@@ -1,4 +1,8 @@
-import { FC, useState, useEffect } from "react";
+import CustomImage from "@/components/custom/CustomImage";
+import {
+  FC,
+  useState,
+  useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -6,9 +10,8 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  Image,
   Chip,
-  addToast,
+  addToast
 } from "@heroui/react";
 import { ShoppingCart, Plus, Minus, Star, Users } from "lucide-react";
 import RatingStars from "../RatingStars";
@@ -262,7 +265,7 @@ const SimpleProductModal: FC<ProductModalProps> = ({
             <div className="flex items-center flex-col bg-gray-100 dark:bg-inherit rounded-lg relative">
               {selectedVariant.image || product.main_image ? (
                 <>
-                  <Image
+                  <CustomImage
                     src={selectedVariant.image || product.main_image}
                     alt={product.title ?? t("product_modal.untitled")}
                     classNames={{

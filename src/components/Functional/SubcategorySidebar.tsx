@@ -1,8 +1,12 @@
+import CustomImage from "@/components/custom/CustomImage";
 import React from "react";
-import { getCategories } from "@/routes/api";
+import {
+  getCategories } from "@/routes/api";
 import { useInfiniteData } from "@/hooks/useInfiniteData";
 import { Category } from "@/types/ApiResponse";
-import { Button, Image, ScrollShadow } from "@heroui/react";
+import { Button,
+  ScrollShadow
+} from "@heroui/react";
 import { Grid3X3 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -95,7 +99,7 @@ const SubcategorySidebar: React.FC<Props> = ({
                     <div className="flex items-center gap-3 w-full">
                       {cat.image ? (
                         <div className="relative shrink-0 rounded-lg overflow-hidden">
-                          <Image
+                          <CustomImage
                             src={cat.image}
                             alt={cat.title}
                             className="object-contain"

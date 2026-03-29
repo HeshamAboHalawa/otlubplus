@@ -102,20 +102,25 @@ const TabButton: React.FC<TabButtonProps> = ({
           `}
       >
         {iconUrl ? (
-          <Image
-            src={iconUrl}
-            alt={title}
-            loading="eager"
-            radius="none"
+          <div
             className={`
-                object-contain
-                ${
-                  isLarge
-                    ? "w-6 h-6 md:w-9 md:h-9 lg:w-11 lg:h-11"
-                    : "w-6 h-6 md:w-8 md:h-8"
-                }
-                ${!isSelected ? "dark:invert dark:brightness-200" : ""}
-              `}
+              ${
+                isLarge
+                  ? "w-6 h-6 md:w-9 md:h-9 lg:w-11 lg:h-11"
+                  : "w-6 h-6 md:w-8 md:h-8"
+              }
+              ${isSelected ? "bg-primary" : "bg-default-400"}
+            `}
+            style={{
+              WebkitMaskImage: `url(${iconUrl})`,
+              WebkitMaskSize: "contain",
+              WebkitMaskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskImage: `url(${iconUrl})`,
+              maskSize: "contain",
+              maskRepeat: "no-repeat",
+              maskPosition: "center",
+            }}
           />
         ) : (
           staticIcon || (

@@ -17,7 +17,7 @@ const packageJson = JSON.parse(
   readFileSync(join(process.cwd(), "package.json"), "utf8")
 );
 const { version = "0" } = packageJson;
-const isExport = process.env.NEXT_PUBLIC_SSR !== "true";
+const isExport = process.env.NEXT_PUBLIC_SSR?.trim() !== "true";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@heroui/system", "@heroui/react"],

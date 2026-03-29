@@ -50,7 +50,7 @@ const Footer: FC = () => {
   }, [webSettings?.footerScript]);
 
   return (
-    <footer className="bg-primary-700 text-white w-full">
+    <footer className="w-full text-white" style={{ backgroundColor: "hsl(var(--heroui-primary) / 1)" }}>
       <div className="w-full max-w-[1536px] mx-auto px-2 sm:px-6 pt-6 sm:pt-12 pb-3 sm:pb-5">
         {/* Mobile Compact Layout */}
         <div className="block sm:hidden space-y-6">

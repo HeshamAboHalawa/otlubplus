@@ -232,7 +232,7 @@ const OpenStreetMapTracking: FC<OpenStreetMapTrackingProps> = ({
         // Create polyline for the route
         if (allRoutePoints.length > 0) {
           const routePolyline = L.polyline(allRoutePoints, {
-            color: "#3B82F6",
+            color: "#ff3333",
             weight: 4,
             opacity: 0.8,
             smoothFactor: 1,
@@ -262,7 +262,7 @@ const OpenStreetMapTracking: FC<OpenStreetMapTrackingProps> = ({
         // Create store markers
         stores.forEach((store, index) => {
           const storeMarker = L.marker([store.latitude, store.longitude], {
-            icon: createCustomIcon("#3B82F6", `${index + 1}`, "store"),
+            icon: createCustomIcon("#ff3333", `${index + 1}`, "store"),
           }).addTo(map);
 
           const distanceText = store.distance_from_customer
@@ -274,7 +274,7 @@ const OpenStreetMapTracking: FC<OpenStreetMapTrackingProps> = ({
           storeMarker.bindPopup(`
             <div style="min-width: 220px; padding: 8px;">
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <div style="width: 24px; height: 24px; background-color: #3B82F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
+                <div style="width: 24px; height: 24px; background-color: #ff3333; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
                   ${index + 1}
                 </div>
                 <strong style="color: #1f2937;">Store ${index + 1}</strong>

@@ -181,7 +181,7 @@ const GoogleMapForTracking: FC<GoogleMapForTrackingProps> = ({
         // Create marker for each store
         storeLocations.forEach((store, index) => {
           const storePin = new PinElement({
-            background: "#3B82F6",
+            background: "#ff3333",
             borderColor: "#FFFFFF",
             glyphColor: "#FFFFFF",
             glyph: `${index + 1}`,
@@ -360,7 +360,7 @@ const GoogleMapForTracking: FC<GoogleMapForTrackingProps> = ({
               const polylineBetweenStores = new google.maps.Polyline({
                 path: pathBetweenStores,
                 geodesic: false,
-                strokeColor: "#3B82F6",
+                strokeColor: "#ff3333",
                 strokeOpacity: 0.5,
                 strokeWeight: 2,
               });

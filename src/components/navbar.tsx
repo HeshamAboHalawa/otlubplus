@@ -1,4 +1,3 @@
-import CustomImage from "@/components/custom/CustomImage";
 import React, { FC, useEffect, useState } from "react";
 import {
   Navbar as HeroUINavbar,
@@ -9,8 +8,9 @@ import {
   NavbarItem,
   NavbarMenuItem,
   Link,
+  Image,
   useDisclosure,
-  Button
+  Button,
 } from "@heroui/react";
 import LocationSelector from "./Location/LocationSelector";
 import { ThemeSwitch } from "./theme-switch";
@@ -152,7 +152,7 @@ export const Navbar: FC = () => {
               <NavbarBrand className="gap-3 w-full min-w-32">
                 <Link href="/" title={t("nav.home")}>
                   {/* Light theme logo */}
-                  <CustomImage
+                  <Image
                     loading="eager"
                     src={siteHeaderLogo}
                     alt={siteName}
@@ -164,7 +164,7 @@ export const Navbar: FC = () => {
                     }}
                   />
                   {/* Dark theme logo */}
-                  <CustomImage
+                  <Image
                     loading="eager"
                     src={siteHeaderDarkLogo}
                     alt={siteName}

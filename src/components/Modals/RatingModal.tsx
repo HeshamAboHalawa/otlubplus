@@ -1,5 +1,4 @@
-// Top import CustomImage from "@/components/custom/CustomImage";
-imports
+// Top imports
 import React, { useEffect, useState } from "react";
 import {
   Modal,
@@ -12,7 +11,8 @@ import {
   Textarea,
   Form,
   Tooltip,
-  addToast
+  addToast,
+  Image,
 } from "@heroui/react";
 import {
   giveDeliveryBoyReview,
@@ -512,7 +512,7 @@ const RatingModal: React.FC<RatingModalProps> = ({
                     {images.map((image) => (
                       <div key={image.id} className="relative group">
                         <div className="aspect-square rounded-lg overflow-hidden bg-default-100">
-                          <CustomImage
+                          <Image
                             removeWrapper
                             disableAnimation
                             src={image.preview}

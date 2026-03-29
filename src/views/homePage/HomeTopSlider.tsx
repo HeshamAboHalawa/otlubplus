@@ -1,14 +1,9 @@
-import CustomImage from "@/components/custom/CustomImage";
-import {
-  FC } from "react";
+import { FC } from "react";
 import useSWR from "swr";
-import { Swiper,
-  SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import { Autoplay } from "swiper/modules";
-import { Card,
-  Skeleton
-} from "@heroui/react";
+import { Card, Image, Skeleton } from "@heroui/react";
 import { getBannerImages } from "@/routes/api";
 import { getActiveCategory, isSSR } from "@/helpers/getters";
 import { BannerData } from "@/types/ApiResponse";
@@ -147,7 +142,7 @@ const HomeTopSlider: FC<HomeTopSliderProps> = ({
                               : "#"
                     }
                   >
-                    <CustomImage
+                    <Image
                       src={banner.banner_image}
                       alt={banner.title}
                       loading="lazy"

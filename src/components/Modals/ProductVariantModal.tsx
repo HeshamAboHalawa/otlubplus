@@ -1,8 +1,4 @@
-import CustomImage from "@/components/custom/CustomImage";
-import {
-  FC,
-  useState,
-  useEffect } from "react";
+import { FC, useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -10,10 +6,11 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  Image,
   Chip,
   addToast,
   ScrollShadow,
-  Divider
+  Divider,
 } from "@heroui/react";
 import { ShoppingCart, Plus, Minus, Star, Users } from "lucide-react";
 import RatingStars from "../RatingStars";
@@ -226,7 +223,7 @@ const ProductVariantModal: FC<ProductVariantModalProps> = ({
               <div className="flex items-center flex-col bg-gray-100 dark:bg-inherit rounded-lg relative">
                 {product.main_image ? (
                   <>
-                    <CustomImage
+                    <Image
                       src={product.main_image}
                       alt={product.title ?? t("product_modal.untitled")}
                       classNames={{
@@ -356,7 +353,7 @@ const ProductVariantModal: FC<ProductVariantModalProps> = ({
                       {/* Variant Info */}
                       <div className="flex items-center gap-3">
                         {variant.image ? (
-                          <CustomImage
+                          <Image
                             src={variant.image}
                             alt={variant.title}
                             className="w-16 h-16 object-contain rounded-md"
@@ -364,7 +361,7 @@ const ProductVariantModal: FC<ProductVariantModalProps> = ({
                         ) : (
                           <>
                             {product.main_image ? (
-                              <CustomImage
+                              <Image
                                 src={product.main_image}
                                 alt={variant.title}
                                 className="w-16 h-16  object-contain rounded-md"

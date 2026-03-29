@@ -1,6 +1,5 @@
-import CustomImage from "@/components/custom/CustomImage";
 import React, { useEffect, useRef } from "react";
-;
+import { Image } from "@heroui/react";
 import { LayoutGrid } from "lucide-react";
 
 interface Category {

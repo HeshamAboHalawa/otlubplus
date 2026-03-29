@@ -1,11 +1,5 @@
-import CustomImage from "@/components/custom/CustomImage";
 import React, { FC } from "react";
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader
-} from "@heroui/react";
+import { Card, CardBody, CardFooter, CardHeader, Image } from "@heroui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import { userData } from "@/types/ApiResponse";
@@ -76,7 +70,7 @@ const WalletCard: FC<WalletCardPageProps> = ({ loading = true }) => {
           <div className="flex items-end justify-end h-full">
             <div className="max-w-full flex items-center">
               <div className="flex justify-start items-center text-primary-400 gap-1">
-                <CustomImage
+                <Image
                   loading="eager"
                   className="object-contain"
                   src={siteHeaderDarkLogo}

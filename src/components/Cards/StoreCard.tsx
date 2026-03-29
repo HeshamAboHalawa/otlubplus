@@ -1,11 +1,5 @@
-import CustomImage from "@/components/custom/CustomImage";
 import React, { memo } from "react";
-import {
-  Card,
-  CardBody,
-  Avatar,
-  Chip
-} from "@heroui/react";
+import { Card, CardBody, Avatar, Image, Chip } from "@heroui/react";
 import { MapPin, Star } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -46,7 +40,7 @@ const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
           {/* Banner Image */}
           <div className="relative w-full h-24 sm:h-32">
             <div className="relative w-full h-full overflow-hidden group rounded-t-lg">
-              <CustomImage
+              <Image
                 src={store.banner || "/images/roof.png"}
                 alt={store.name}
                 className="w-full h-full object-top absolute inset-0 z-10 rounded-t-lg rounded-b-none 

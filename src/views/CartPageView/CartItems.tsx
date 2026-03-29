@@ -1,15 +1,12 @@
-import CustomImage from "@/components/custom/CustomImage";
-import {
-  FC,
-  useState,
-  useMemo } from "react";
+import { FC, useState, useMemo } from "react";
 import { CartItem } from "@/types/ApiResponse";
 import {
   addToast,
   Button,
   Chip,
   Divider,
-  ScrollShadow
+  Image,
+  ScrollShadow,
 } from "@heroui/react";
 import Link from "next/link";
 import { CheckCircle, Trash2, XCircle, Bookmark } from "lucide-react";
@@ -199,7 +196,7 @@ const CartItems: FC<CartItemsProps> = ({ items = [], currencySymbol = "" }) => {
                     <div className="flex items-start space-x-2 sm:space-x-3 py-2">
                       {/* Product Image - Smaller on mobile */}
                       <div className="w-16 sm:w-[25%] shrink-0 flex justify-center">
-                        <CustomImage
+                        <Image
                           loading="lazy"
                           src={item.product.image}
                           alt={item.variant.title || ""}

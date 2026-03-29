@@ -1,8 +1,5 @@
-import CustomImage from "@/components/custom/CustomImage";
 import React from "react";
-import {
-  Button
-} from "@heroui/react";
+import { Button, Image } from "@heroui/react";
 import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
 
@@ -90,7 +87,7 @@ const AppDownloadSection: React.FC = () => {
 
           {/* Right — App Image instead of Phone Mockup */}
           <div className="relative flex justify-center lg:justify-end">
-            <CustomImage
+            <Image
               src="/images/app-image.png"
               alt="App Preview"
               className="rounded-2xl object-contain w-80 h-60 sm:w-72 sm:h-80 lg:w-[400px] lg:h-96"

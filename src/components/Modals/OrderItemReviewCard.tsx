@@ -1,7 +1,4 @@
-import CustomImage from "@/components/custom/CustomImage";
-import {
-  FC,
-  useState } from "react";
+import { FC, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -10,7 +7,8 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Chip
+  Chip,
+  Image,
 } from "@heroui/react";
 import RatingStars from "../RatingStars";
 import { getFormattedDate } from "@/helpers/getters";
@@ -105,7 +103,7 @@ const OrderItemReviewCard: FC<OrderItemReviewCardProps> = ({ userReview }) => {
                 userReview.review_images.length > 0 && (
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-2">
                     {userReview.review_images.map((img, idx) => (
-                      <CustomImage
+                      <Image
                         key={idx}
                         src={img}
                         alt={`review-img-${idx}`}

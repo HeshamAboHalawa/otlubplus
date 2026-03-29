@@ -1,4 +1,3 @@
-import CustomImage from "@/components/custom/CustomImage";
 import React, { FC } from "react";
 import {
   Button,
@@ -8,8 +7,9 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
+  Image,
   ScrollShadow,
-  addToast
+  addToast,
 } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
@@ -161,7 +161,7 @@ const OfflineCartDrawer: FC<OfflineCartDrawerProps> = ({ isOpen, onClose }) => {
                       className="flex gap-3 rounded-large border border-default-200/70 p-3"
                     >
                       {item.image ? (
-                        <CustomImage
+                        <Image
                           alt={item.name}
                           src={item.image}
                           removeWrapper
@@ -288,7 +288,7 @@ const OfflineCartDrawer: FC<OfflineCartDrawerProps> = ({ isOpen, onClose }) => {
               </>
             ) : (
               <div className="flex flex-col items-center gap-3 py-10 text-center">
-                <CustomImage
+                <Image
                   alt="Empty cart"
                   src="/empty/noOrder.png"
                   width={180}

@@ -1,4 +1,3 @@
-import CustomImage from "@/components/custom/CustomImage";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Modal,
@@ -9,7 +8,8 @@ import {
   Button,
   Divider,
   ScrollShadow,
-  useDisclosure
+  useDisclosure,
+  Image,
 } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { Product } from "@/types/ApiResponse";
@@ -82,7 +82,7 @@ const FailedItemsModal: React.FC = () => {
                 {/* Product Image */}
                 <div className="shrink-0">
                   {item.product.main_image ? (
-                    <CustomImage
+                    <Image
                       src={item.product.main_image}
                       alt={item.product.title || "Product"}
                       className="w-16 h-16 object-cover rounded-md"

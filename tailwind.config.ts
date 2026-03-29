@@ -66,48 +66,48 @@ const config: import("tailwindcss").Config = {
           large: "2px",
         },
       },
-      themes: {
-        light: {
-          colors: {
-            background: "#ffffff",
-            foreground: "#000000",
-            focus: "#3b82f6", // Blue focus
-            primary: {
-              50: "#eff6ff",
-              100: "#dbeafe",
-              200: "#bfdbfe",
-              300: "#93c5fd",
-              400: "#60a5fa",
-              500: "#3b82f6",
-              600: "#2563eb",
-              700: "#1d4ed8",
-              800: "#1e40af",
-              900: "#1e3a8a",
-              DEFAULT: "#3b82f6",
-            },
-          },
-        },
-        dark: {
-          colors: {
-            background: "#000000",
-            foreground: "#FFFFFF",
-            focus: "#60a5fa", // Brighter blue for dark mode
-            primary: {
-              50: "#eff6ff",
-              100: "#dbeafe",
-              200: "#bfdbfe",
-              300: "#93c5fd",
-              400: "#60a5fa",
-              500: "#3b82f6",
-              600: "#2563eb",
-              700: "#1d4ed8",
-              800: "#1e40af",
-              900: "#1e3a8a",
-              DEFAULT: "#3b82f6",
-            },
-          },
-        },
+    themes: {
+  light: {
+    colors: {
+      background: "#ffffff",
+      foreground: "#000000",
+      focus: "#D40301",
+      primary: {
+        50:  "#fff0f0",
+        100: "#ffd6d6",
+        200: "#ffadad",
+        300: "#ff7575",
+        400: "#ff3333",
+        500: "#D40301",   
+        600: "#aa0201",
+        700: "#800200",
+        800: "#550100",
+        900: "#2b0100",
+        DEFAULT: "#D40301",
       },
+    },
+  },
+  dark: {
+    colors: {
+      background: "#000000",
+      foreground: "#FFFFFF",
+      focus: "#ff3333",      
+      primary: {
+        50:  "#2b0100",     
+        100: "#550100",
+        200: "#800200",
+        300: "#aa0201",
+        400: "#D40301",      
+        500: "#ff3333",     
+        600: "#ff7575",
+        700: "#ffadad",
+        800: "#ffd6d6",
+        900: "#fff0f0",
+        DEFAULT: "#ff3333",   
+      },
+    },
+  },
+},
     }),
   ],
 };

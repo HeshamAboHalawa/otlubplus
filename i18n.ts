@@ -6,7 +6,6 @@ import { getCookie, setCookie } from "@/lib/cookies";
 
 // Languages
 import enTranslation from "./public/locales/en.json";
-import hiTranslation from "./public/locales/hi.json";
 import arTranslation from "./public/locales/ar.json";
 
 const LANGUAGE_KEY = "i18nextLng";
@@ -14,14 +13,11 @@ const LANGUAGE_KEY = "i18nextLng";
 const DEFAULT_LANG = "en";
 
 const languages = {
+    ar: {
+    translation: arTranslation,
+  },
   en: {
     translation: enTranslation,
-  },
-  hi: {
-    translation: hiTranslation,
-  },
-  ar: {
-    translation: arTranslation,
   },
 };
 

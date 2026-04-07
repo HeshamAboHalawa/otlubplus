@@ -13,23 +13,17 @@ import { ChevronDown } from "lucide-react";
 import { changeLanguage } from "../../../i18n";
 
 const languages = [
+    {
+    code: "ar",
+    countryCode: "sa",
+    name: "العربية",
+    flag: "🇸🇦",
+  },
   {
     code: "en",
     countryCode: "us",
     name: "English",
     flag: "🇺🇸",
-  },
-  {
-    code: "hi",
-    countryCode: "in",
-    name: "हिन्दी",
-    flag: "🇮🇳",
-  },
-  {
-    code: "ar",
-    countryCode: "sa",
-    name: "العربية",
-    flag: "🇸🇦",
   },
 ];
 

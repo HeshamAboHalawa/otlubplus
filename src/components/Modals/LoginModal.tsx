@@ -235,8 +235,10 @@ export const LoginModal: FC<LoginModalProps> = ({ triggerView = "btn" }) => {
 
   // Handle OTP phone input change
   const handleOtpPhoneChange = (
+    countryCode: string,
     phoneNumber: string,
     dialCode: string,
+    _name: string,
   ) => {
     const formattedNumber = `${dialCode}${phoneNumber}`;
     setOtpPhoneNumber(formattedNumber);
@@ -246,10 +248,10 @@ export const LoginModal: FC<LoginModalProps> = ({ triggerView = "btn" }) => {
       setErrors((prev) => ({ ...prev, phone: undefined }));
     }
 
-    // Only check if phone number is complete (exactly 10 digits)
-    if (phoneNumber && phoneNumber.length === 10) {
+    // Only check if phone number looks complete (at least 7 digits)
+    if (phoneNumber && phoneNumber.length >= 7) {
       debouncedOtpPhoneCheck(phoneNumber);
-    } else if (phoneNumber && phoneNumber.length < 10) {
+    } else if (phoneNumber && phoneNumber.length < 7) {
       // Clear error if user is still typing
       setErrors((prev) => ({ ...prev, phone: undefined }));
     }
@@ -257,7 +259,7 @@ export const LoginModal: FC<LoginModalProps> = ({ triggerView = "btn" }) => {
 
   // Debounced OTP phone check
   const debouncedOtpPhoneCheck = useDebounce(async (phone: string) => {
-    if (!phone.trim() || phone.length < 10) {
+    if (!phone.trim() || phone.length < 7) {
       setErrors((prev) => ({ ...prev, phone: undefined }));
       return;
     }

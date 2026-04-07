@@ -13,7 +13,7 @@ import { ChevronDown } from "lucide-react";
 import { changeLanguage } from "../../../i18n";
 
 const languages = [
-    {
+  {
     code: "ar",
     countryCode: "sa",
     name: "العربية",
